@@ -162,7 +162,7 @@ class Game(object):
     # draw frames per second
     FPS = 60
 
-    def __init__(self, title=None, width=320, height=200, zoom=3):
+    def __init__(self, title=None, width=320, height=200, zoom=1):
 
         self.title = title.encode() or b"SDL2 Game"
         self.width = width
