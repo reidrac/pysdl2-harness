@@ -124,6 +124,9 @@ class Game(object):
         Depending on the resource some extra libraries may be
         required in the system (eg, SDL_Image).
 
+        Resources not in use can be freed using free_resources(filename)
+        method.
+
     Useful properties
 
         Keyboard
@@ -171,6 +174,7 @@ class Game(object):
         self.update_handlers = []
         self.draw_handlers = []
         self.resource_path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "data"),]
+        self.resources = {}
 
         for attr in dir(sdl2):
             if attr.startswith("SDL_SCANCODE_"):
@@ -232,6 +236,9 @@ class Game(object):
 
             current = new
 
+        for resource in self.resources.copy().keys():
+            self.free_resource(resource)
+
         sdl2.SDL_DestroyRenderer(self.renderer)
         sdl2.SDL_HideWindow(self.window)
         sdl2.SDL_DestroyWindow(self.window)
@@ -245,6 +252,17 @@ class Game(object):
     def update(self, fn):
         self.update_handlers.append(fn)
         return fn
+
+    def free_resource(self, filename):
+        """Free resources"""
+
+        try:
+            free_fn = self.resources[filename]
+        except KeyError:
+            return
+
+        free_fn()
+        del self.resources[filename]
 
     def load_resource(self, filename):
         """Loads resources"""
@@ -264,9 +282,9 @@ class Game(object):
             if not image:
                 sys.exit("Error loading %r: %s" % (filename, sdl2.SDL_GetError()))
 
-            tex = sdl2.SDL_CreateTextureFromSurface(self.renderer, image);
+            resource = sdl2.SDL_CreateTextureFromSurface(self.renderer, image);
+            free_fn = sdl2.SDL_DestroyTexture
             sdl2.SDL_FreeSurface(image)
-            return tex
         elif filename[-4:] in (".png", ".gif", ".jpg"):
             from sdl2 import sdlimage
 
@@ -274,9 +292,9 @@ class Game(object):
             if not image:
                 sys.exit("Error loading %r: %s" % (filename, sdlimage.IMG_GetError()))
 
-            tex = sdl2.SDL_CreateTextureFromSurface(self.renderer, image);
+            resource = sdl2.SDL_CreateTextureFromSurface(self.renderer, image);
+            free_fn = sdl2.SDL_DestroyTexture
             sdl2.SDL_FreeSurface(image)
-            return tex
         elif filename[-4:] in (".wav", ".ogg"):
             # XXX: UNTESTED
             from sdl2 import sdlmixer
@@ -284,8 +302,12 @@ class Game(object):
             audio = sdlmixer.Mix_LoadWAV(found_path.encode())
             if not audio:
                 sys.exit("Error loading %r: %s" % (filename, sdlmixer.Mix_GetError()))
-            return audio
+
+            resource = audio
+            free_fn = sdlmixer.Mix_FreeChunk
         else:
             return open(filename, "rb")
 
+        self.resources[filename] = lambda : free_fn(resource)
+        return resource
 
