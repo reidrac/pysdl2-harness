@@ -25,17 +25,17 @@ Example:
 
 from harness import Game
 
-game = Game(width=240, height=240)
+game = Game()
 
 # by default resources are loaded for a "data" subdirectory at
 # the same level of the script bein run
-title_tex = game.load_resource("title.bmp")
+title = game.load_resource("title.bmp")
 
 @game.draw
 def draw(renderer):
 	# draw your textures, optionally provide two tuples describing
 	# source and destination rects
-	renderer.draw(title_tex)
+	renderer.draw(title)
 
 @game.update
 def update(dt):
