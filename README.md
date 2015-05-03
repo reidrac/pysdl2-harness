@@ -25,7 +25,7 @@ Example:
 
 from harness import Game
 
-game = Game()
+game = Game(width=320, height=240)
 
 # by default resources are loaded for a "data" subdirectory at
 # the same level of the script bein run
