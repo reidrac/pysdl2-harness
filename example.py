@@ -16,7 +16,7 @@ def update(dt):
     # update your game logic, dt is constant Game.UPDATE_FPS
     # use game.quit() to exit the game loop
 
-    # key state can be check in "keys" dict using KEY_* constants
+    # key state can be checked in "keys" dict using KEY_* constants
     if game.keys[game.KEY_ESCAPE]:
         game.quit()
 
