@@ -1,9 +1,22 @@
 Harness for pysdl2
-------------------
+==================
 
 These are a set of classes to make easier to use [pysdl2](https://pysdl2.readthedocs.org).
 
 This is a work in progress so use it at your own risk!
+
+
+Required
+--------
+
+ - Python 3
+ - pysdl2
+ - SDL2 installed in your system
+ - Optionally, SDL2_Image and SDL2_Mixer
+
+
+How it looks like
+-----------------
 
 Example:
 
@@ -38,5 +51,11 @@ game.loop()
 ```
 See `harness.py` docstrings for further information.
 
+
+Author
+------
+
 Juan J. Martinez <jjm@usebox.net>
+
+This is free software under MIT license terms.
 
