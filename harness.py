@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 harness.Game,
-some simple classes to make simpler work with pysdl2.
+some simple classes to make working with pysdl2 easier.
 
 Copyright (C) 2015 by Juan J. Martinez <jjm@usebox.net>
 
