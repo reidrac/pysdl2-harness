@@ -13,7 +13,7 @@ background = game.load_resource("background.png")
 title = game.load_resource("title.png")
 font = game.load_bitmap_font("font.png", width=6, height=10)
 
-pickup = game.load_resource("pickup.ogg")
+intro = game.load_resource("harness-dance.ogg")
 hurryup = game.load_resource("hurryup.ogg")
 time = game.load_resource("time.ogg")
 
@@ -25,6 +25,7 @@ class MenuScene(object):
     def __init__(self):
         self.counter = 2
         self.title_y = -100
+        self.intro_channel = None
         self.boing = game.load_resource("boing.ogg")
         game.play(self.boing)
 
@@ -35,13 +36,16 @@ class MenuScene(object):
         # wait until the title is in place
         if self.title_y >= 40:
             if 2 < self.counter < 12:
-                renderer.draw_text(font, 120, 120, "Press 's' to start!", align="center")
+                renderer.draw_text(font, 120, 132, "Press 's' to start!", align="center")
 
             renderer.draw_text(font, 120, 10, "Copyright (c) 2015 usebox.net", align="center")
             renderer.draw_text(font, 120, 48, "HI: %04i" % hiscore, align="center")
 
             renderer.draw_text(font, 120, 196, "Use the arrows to move", align="center")
             renderer.draw_text(font, 120, 208, "and collect the goodies!", align="center")
+
+            renderer.draw_text(font, 120, 106, "a game by @reidrac",
+                    align="center", tint=(98, 100, 220, 255))
 
     def update(self, dt):
 
@@ -52,6 +56,9 @@ class MenuScene(object):
             # won't be used again
             game.free_resource("boing.ogg")
             self.boing = None
+        elif self.intro_channel is None:
+            # loop the intro music
+            self.intro_channel = game.play(intro, loops=-1)
 
         self.counter += dt * 10
         if self.counter > 12:
@@ -61,6 +68,8 @@ class MenuScene(object):
             game.quit()
         elif game.keys[game.KEY_S]:
             # press "s" to play
+            game.stop_playback(self.intro_channel)
+            self.intro_channel = None
             scenes.append(PlayScene())
             return
 
@@ -73,6 +82,15 @@ class PlayScene(object):
         self.ready_delay = 16
         self.hurry_up = None
         self.game_over = None
+        self.time_tint = None
+        self.prev_time = 0
+
+    def next_stage(self):
+        self.score += 1000
+        self.stage += 1
+        self.ready_delay = 16
+        self.time = 99
+        self.hurry_up = None
         self.time_tint = None
         self.prev_time = 0
 
