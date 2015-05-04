@@ -43,6 +43,16 @@ class Renderer(object):
         self.renderer = renderer
 
     def draw(self, texture, src_rect=None, dest_rect=None, tint=None):
+        """
+        Draw a texture.
+
+        Parameters:
+
+            texture: font name (load it first with load_bitmap_font).
+            src_rect: tuple with the rect defining the section of the texture to draw.
+            dest_rect: tuple with the rect defining the section of the destination.
+            tint: colour the text texture, tuple with (r, g, b, alpha).
+        """
         if isinstance(src_rect, tuple):
             src = sdl2.SDL_Rect(*src_rect)
         else:
@@ -65,9 +75,7 @@ class Renderer(object):
 
     def draw_text(self, font, x, y, text, align="left", tint=None):
         """
-        Render text using a texture.
-
-        Rreturns a new texture.
+        Draw text using a texture.
 
         Parameters:
 
@@ -76,6 +84,7 @@ class Renderer(object):
             y: vertical position on the screen.
             text: the text to render.
             align: "left", "right" or "center" (defaults to "left").
+            tint: colour the text texture, tuple with (r, g, b, alpha).
         """
         width = len(text) * font.width
 
