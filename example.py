@@ -13,7 +13,8 @@ background = game.load_resource("background.png")
 title = game.load_resource("title.png")
 font = game.load_bitmap_font("font.png", width=6, height=10)
 
-intro = game.load_resource("harness-dance.ogg")
+dance = game.load_resource("harness-dance.ogg")
+dance_hurry = game.load_resource("harness-dance-hurry.ogg")
 hurryup = game.load_resource("hurryup.ogg")
 time = game.load_resource("time.ogg")
 
@@ -58,7 +59,7 @@ class MenuScene(object):
             self.boing = None
         elif self.intro_channel is None:
             # loop the intro music
-            self.intro_channel = game.play(intro, loops=-1)
+            self.intro_channel = game.play(dance, loops=-1)
 
         self.counter += dt * 10
         if self.counter > 12:
@@ -80,6 +81,7 @@ class PlayScene(object):
         self.stage = 1
         self.time = 20
         self.ready_delay = 16
+        self.music_channel = None
         self.hurry_up = None
         self.game_over = None
         self.time_tint = None
@@ -90,6 +92,7 @@ class PlayScene(object):
         self.stage += 1
         self.ready_delay = 16
         self.time = 99
+        self.music_channel = None
         self.hurry_up = None
         self.time_tint = None
         self.prev_time = 0
@@ -134,6 +137,8 @@ class PlayScene(object):
         # READY? delay
         if self.ready_delay > 0:
             self.ready_delay -= dt * 10
+            if self.ready_delay <= 0 and self.music_channel is None:
+                self.music_channel = game.play(dance, loops=-1)
             return
 
         # HURRY UP! delay
@@ -142,6 +147,8 @@ class PlayScene(object):
 
             if self.hurry_up <= 0:
                 self.hurry_up = 0
+                if self.music_channel is None:
+                    self.music_channel = game.play(dance_hurry, loops=-1)
             else:
                 return
 
@@ -153,6 +160,8 @@ class PlayScene(object):
             self.time_tint = (255, 0, 0, 255)
             self.prev_time = 10
             game.play(hurryup)
+            game.stop_playback(self.music_channel)
+            self.music_channel = None
             return
 
         # beep on the last seconds
@@ -164,10 +173,20 @@ class PlayScene(object):
         if int(self.time) == 0:
             self.game_over = 60
 
+            # stop music
+            if self.music_channel is not None:
+                game.stop_playback(self.music_channel)
+
+            # TODO: play game over
+
         if game.keys[game.KEY_ESCAPE]:
             # avoid leaving the game just after
             # leaving this scene!
             game.keys[game.KEY_ESCAPE] = False
+
+            # stop music
+            if self.music_channel is not None:
+                game.stop_playback(self.music_channel)
 
             # go to previous scene
             scenes.pop()
