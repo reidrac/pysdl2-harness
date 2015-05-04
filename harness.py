@@ -217,6 +217,7 @@ class Game(object):
 
     # draw frames per second
     FPS = 60
+    DRAW_DT = 1.0 / FPS
 
     FONT_MAP = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?()@:/'., "
 
@@ -288,7 +289,7 @@ class Game(object):
             new = sdl2.SDL_GetTicks()
             self._update(new - current)
 
-            if new - current > 1 / self.FPS:
+            if new - current > self.DRAW_DT:
                 sdl2.SDL_RenderClear(self.renderer)
                 self._draw()
                 sdl2.SDL_RenderPresent(self.renderer)
