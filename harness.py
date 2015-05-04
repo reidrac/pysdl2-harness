@@ -42,7 +42,7 @@ class Renderer(object):
     def __init__(self, renderer):
         self.renderer = renderer
 
-    def draw(self, texture, src_rect=None, dest_rect=None):
+    def draw(self, texture, src_rect=None, dest_rect=None, tint=None):
         if isinstance(src_rect, tuple):
             src = sdl2.SDL_Rect(*src_rect)
         else:
@@ -53,9 +53,17 @@ class Renderer(object):
         else:
             dest = None
 
+        if isinstance(tint, tuple) and len(tint) == 4:
+            sdl2.SDL_SetTextureColorMod(texture, *tint)
+        else:
+            tint = None
+
         sdl2.SDL_RenderCopy(self.renderer, texture, src, dest)
 
-    def draw_text(self, font, x, y, text, align="left"):
+        if tint:
+            sdl2.SDL_SetTextureColorMod(texture, 255, 255, 255, 255)
+
+    def draw_text(self, font, x, y, text, align="left", tint=None):
         """
         Render text using a texture.
 
@@ -80,11 +88,19 @@ class Renderer(object):
         src = sdl2.SDL_Rect(0, 0, font.width, font.height)
         dest = sdl2.SDL_Rect(0, y, font.width, font.height)
 
+        if isinstance(tint, tuple) and len(tint) == 4:
+            sdl2.SDL_SetTextureColorMod(font.texture, *tint)
+        else:
+            tint = None
+
         for i, c in enumerate(text):
             index = font.font_map.find(c)
             src.x = index * font.width
             dest.x = x + i * font.width
             sdl2.SDL_RenderCopy(self.renderer, font.texture, src, dest)
+
+        if tint:
+            sdl2.SDL_SetTextureColorMod(font.texture, 255, 255, 255, 255)
 
 class Game(object):
     """
