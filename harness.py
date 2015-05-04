@@ -26,11 +26,14 @@ THE SOFTWARE.
 import sys
 import os
 import ctypes
+from collections import namedtuple
 
 try:
     import sdl2
 except ImportError as ex:
     sys.exit("SDL2 library not found: %s" % ex)
+
+BitmapFont = namedtuple("BitmapFont", ["texture", "width", "height", "font_map"])
 
 class Renderer(object):
     """Wrapper for the renderer to be used by the draw functions"""
@@ -49,6 +52,37 @@ class Renderer(object):
             dest = None
 
         sdl2.SDL_RenderCopy(self.renderer, texture, src, dest)
+
+    def draw_text(self, font, x, y, text, align="left"):
+        """
+        Render text using a texture.
+
+        Rreturns a new texture.
+
+        Parameters:
+
+            font: font name (load it first with load_bitmap_font).
+            x: horizontal position on the screen.
+            y: vertical position on the screen.
+            text: the text to render.
+            align: "left", "right" or "center" (defaults to "left").
+        """
+        width = len(text) * font.width
+
+        if align == "center":
+            x -= width // 2
+            y -= font.height // 2
+        elif align == "right":
+            x -= width
+
+        src = sdl2.SDL_Rect(0, 0, font.width, font.height)
+        dest = sdl2.SDL_Rect(0, y, font.width, font.height)
+
+        for i, c in enumerate(text):
+            index = font.font_map.find(c)
+            src.x = index * font.width
+            dest.x = x + i * font.width
+            sdl2.SDL_RenderCopy(self.renderer, font.texture, src, dest)
 
 class Game(object):
     """
@@ -72,7 +106,7 @@ class Game(object):
         functions with the "game.update" decorator.
 
         The draw functions should expect a "renderer" parameter that
-        allows to draw textures.
+        allows to draw textures and bitmap fonts.
 
         Example:
 
@@ -91,7 +125,7 @@ class Game(object):
 
         The update functions should expect a "dt" parameter that provides
         the delta time (time elapsed between updates); in this case fixed
-        at UPDATE_FPS.
+        at UPDATE_DT (1 / UPDATE_FPS).
 
         Example:
 
@@ -124,8 +158,29 @@ class Game(object):
         Depending on the resource some extra libraries may be
         required in the system (eg, SDL_Image).
 
-        Resources not in use can be freed using free_resources(filename)
+        Resources not in use can be freed using game.free_resources(filename)
         method.
+
+    Bitmap fonts
+
+        game.load_bitmap_font can be used to load a image that will be
+        used to draw text with rederer.draw_text.
+
+        Example:
+        ```python
+
+            game = Game()
+
+            font = game.load_bitmap_font("font.png", width=6, height=10)
+
+            @game.draw
+            def draw(renderer):
+                renderer.draw_text(font, 10, 10, "This is a text!")
+
+            game.loop()
+        ```
+
+        Fonts can be freed with game.free_resources.
 
     Useful properties
 
@@ -158,9 +213,12 @@ class Game(object):
     """
     # the update functions will be called a fixed number of FPS
     UPDATE_FPS = 80
+    UPDATE_DT = 1.0 / UPDATE_FPS
 
     # draw frames per second
     FPS = 60
+
+    FONT_MAP = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?()@:/'., "
 
     def __init__(self, title=None, width=320, height=200, zoom=1):
 
@@ -175,6 +233,7 @@ class Game(object):
         self.draw_handlers = []
         self.resource_path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "data"),]
         self.resources = {}
+        self.bitmap_fonts = {}
 
         for attr in dir(sdl2):
             if attr.startswith("SDL_SCANCODE_"):
@@ -198,9 +257,9 @@ class Game(object):
     def _update(self, dt):
 
         self.dt += dt
-        while self.dt >= self.UPDATE_FPS:
+        while self.dt >= self.UPDATE_DT:
             for update in self.update_handlers:
-                update(self.UPDATE_FPS)
+                update(self.UPDATE_DT)
             self.dt -= dt
 
     def _draw(self):
@@ -310,4 +369,31 @@ class Game(object):
 
         self.resources[filename] = lambda : free_fn(resource)
         return resource
+
+    def load_bitmap_font(self, filename, width, height, font_map=None):
+        """
+        Loads a bitmap font.
+
+        Parameters:
+
+            filename: image containing the font (eg, font.png).
+            width: wiidth of a font character.
+            height: height of a font character.
+            font_map: string with the order of the characters in the font.
+
+        The default font map is:
+
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?()@:/'., "
+
+        """
+        if font_map is None:
+            font_map = self.FONT_MAP
+
+        font = BitmapFont(texture=self.load_resource(filename),
+                          width=width,
+                          height=height,
+                          font_map=font_map,
+                          )
+        self.bitmap_fonts[filename] = font
+        return font
 
