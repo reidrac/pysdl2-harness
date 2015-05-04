@@ -8,9 +8,14 @@ Tested with Python 3.4, may or may not work with Python 2!
 from harness import Game
 
 game = Game(title="pysdl2 HARNESS demo", width=240, height=240, zoom=3)
+
 background = game.load_resource("background.png")
 title = game.load_resource("title.png")
 font = game.load_bitmap_font("font.png", width=6, height=10)
+
+pickup = game.load_resource("pickup.ogg")
+hurryup = game.load_resource("hurryup.ogg")
+time = game.load_resource("time.ogg")
 
 scenes = []
 hiscore = 0
@@ -20,6 +25,8 @@ class MenuScene(object):
     def __init__(self):
         self.counter = 2
         self.title_y = -100
+        self.boing = game.load_resource("boing.ogg")
+        game.play(self.boing)
 
     def draw(self, renderer):
         renderer.draw(background)
@@ -41,6 +48,10 @@ class MenuScene(object):
         if self.title_y < 40:
             self.title_y += dt * 120
             return
+        elif self.boing:
+            # won't be used again
+            game.free_resource("boing.ogg")
+            self.boing = None
 
         self.counter += dt * 10
         if self.counter > 12:
@@ -63,6 +74,7 @@ class PlayScene(object):
         self.hurry_up = None
         self.game_over = None
         self.time_tint = None
+        self.prev_time = 0
 
     def draw(self, renderer):
         renderer.draw(background)
@@ -121,6 +133,14 @@ class PlayScene(object):
         if int(self.time) == 10 and self.hurry_up is None:
             self.hurry_up = 12
             self.time_tint = (255, 0, 0, 255)
+            self.prev_time = 10
+            game.play(hurryup)
+            return
+
+        # beep on the last seconds
+        if self.prev_time and int(self.time) != self.prev_time:
+            self.prev_time = int(self.time)
+            game.play(time)
 
         # set GAME OVER
         if int(self.time) == 0:

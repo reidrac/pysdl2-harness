@@ -11,8 +11,8 @@ Required
 
  - Python 3
  - pysdl2
- - SDL2 installed in your system
- - Optionally, SDL2_Image and SDL2_Mixer
+ - SDL2 and SDL2\_Mixer installed in your system
+ - Optionally SDL2\_Image (otherwise only uncompressed BMP images are supported)
 
 
 How it looks like

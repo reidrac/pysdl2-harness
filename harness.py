@@ -35,6 +35,11 @@ try:
 except ImportError as ex:
     sys.exit("SDL2 library not found: %s" % ex)
 
+try:
+    from sdl2 import sdlmixer
+except ImportError as ex:
+    sys.exit("SDL2_Mixer library not found: %s" % ex)
+
 BitmapFont = namedtuple("BitmapFont", ["texture", "width", "height", "font_map"])
 
 class Renderer(object):
@@ -248,6 +253,8 @@ class Game(object):
 
     FONT_MAP = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?()@:/'., "
 
+    AUDIO_CHANNELS = 6
+
     def __init__(self, title=None, width=320, height=200, zoom=1):
 
         self.title = title.encode() or b"SDL2 Game"
@@ -267,7 +274,9 @@ class Game(object):
             if attr.startswith("SDL_SCANCODE_"):
                 setattr(self, attr.replace("SDL_SCANCODE_", "KEY_"), getattr(sdl2, attr))
 
-        sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO)
+        sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO|sdl2.SDL_INIT_AUDIO)
+        sdlmixer.Mix_Init(sdlmixer.MIX_INIT_OGG)
+        sdlmixer.Mix_OpenAudio(44100, sdlmixer.MIX_DEFAULT_FORMAT, self.AUDIO_CHANNELS, 1024)
 
         self.window = sdl2.SDL_CreateWindow(self.title,
                                             sdl2.SDL_WINDOWPOS_CENTERED,
@@ -330,6 +339,7 @@ class Game(object):
         sdl2.SDL_HideWindow(self.window)
         sdl2.SDL_DestroyWindow(self.window)
 
+        sdlmixer.Mix_Quit()
         sdl2.SDL_Quit()
 
     def draw(self, fn):
@@ -339,6 +349,9 @@ class Game(object):
     def update(self, fn):
         self.update_handlers.append(fn)
         return fn
+
+    def play(self, sample):
+        sdlmixer.Mix_PlayChannel(-1, sample, 0)
 
     def free_resource(self, filename):
         """Free resources"""
@@ -383,9 +396,6 @@ class Game(object):
             free_fn = sdl2.SDL_DestroyTexture
             sdl2.SDL_FreeSurface(image)
         elif filename[-4:] in (".wav", ".ogg"):
-            # XXX: UNTESTED
-            from sdl2 import sdlmixer
-
             audio = sdlmixer.Mix_LoadWAV(found_path.encode())
             if not audio:
                 sys.exit("Error loading %r: %s" % (filename, sdlmixer.Mix_GetError()))
