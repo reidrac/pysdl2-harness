@@ -59,6 +59,7 @@ class PlayScene(object):
         self.score = 0
         self.stage = 1
         self.time = 99
+        self.ready_delay = 16
 
     def draw(self, renderer):
         renderer.draw(background)
@@ -67,7 +68,16 @@ class PlayScene(object):
         renderer.draw_text(font, 236, 4, "STAGE %i" % self.stage, align="right")
         renderer.draw_text(font, 120, 9, "TIME: %02i" % int(self.time), align="center")
 
+        if self.ready_delay > 0:
+            renderer.draw_text(font, 120, 100, "READY?", align="center")
+            return
+
     def update(self, dt):
+
+        if self.ready_delay > 0:
+            self.ready_delay -= dt * 10
+            return
+
         self.time -= dt
 
         if game.keys[game.KEY_ESCAPE]:
