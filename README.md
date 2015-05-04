@@ -49,7 +49,8 @@ def update(dt):
 # will return when the game is quitted
 game.loop()
 ```
-See `harness.py` docstrings for further information.
+See `harness.py` docstrings for further information. There's an example
+game in `example.py`.
 
 
 Author
