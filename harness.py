@@ -28,6 +28,8 @@ import os
 import ctypes
 from collections import namedtuple
 
+version = "0.1-alpha"
+
 try:
     import sdl2
 except ImportError as ex:
