@@ -62,13 +62,14 @@ class PlayScene(object):
         self.ready_delay = 16
         self.hurry_up = None
         self.game_over = None
+        self.time_tint = None
 
     def draw(self, renderer):
         renderer.draw(background)
 
         renderer.draw_text(font, 4, 4, "SCORE %04i" % self.score)
         renderer.draw_text(font, 236, 4, "STAGE %i" % self.stage, align="right")
-        renderer.draw_text(font, 120, 9, "TIME: %02i" % int(self.time), align="center")
+        renderer.draw_text(font, 120, 9, "TIME: %02i" % int(self.time), align="center", tint=self.time_tint)
 
         # show READY? before starting
         if self.ready_delay > 0:
@@ -119,6 +120,7 @@ class PlayScene(object):
         # set HURRY UP once
         if int(self.time) == 10 and self.hurry_up is None:
             self.hurry_up = 12
+            self.time_tint = (255, 0, 0, 255)
 
         # set GAME OVER
         if int(self.time) == 0:
