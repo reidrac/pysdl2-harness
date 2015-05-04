@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+"""
+Harness demo, a game example.
+
+Tested with Python 3.4, may or may not work with Python 2!
+"""
 
 from harness import Game
 
