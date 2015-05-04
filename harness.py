@@ -196,7 +196,7 @@ class Game(object):
     Bitmap fonts
 
         game.load_bitmap_font can be used to load a image that will be
-        used to draw text with rederer.draw_text.
+        used to draw text with renderer.draw_text.
 
         Example:
         ```python
@@ -213,6 +213,18 @@ class Game(object):
         ```
 
         Fonts can be freed with game.free_resources.
+
+    Audio
+
+        game.play can be used to play a sample loaded with game.load_resource.
+        Optionally a "loops" can be provided stating how many times the sample
+        will be repeated (use -1 for an infinite loop).
+
+        game.play returns the channel number used to play the sample and that
+        channel can be muted with game.stop_playback (don't provide a channel
+        number to stop all channels).
+
+        By default Game.AUDIO_CHANNElS channels are allocated.
 
     Useful properties
 
@@ -350,8 +362,13 @@ class Game(object):
         self.update_handlers.append(fn)
         return fn
 
-    def play(self, sample):
-        sdlmixer.Mix_PlayChannel(-1, sample, 0)
+    def play(self, sample, loops=0):
+        """Plays a sample loaded with load_resource"""
+        return sdlmixer.Mix_PlayChannel(-1, sample, loops)
+
+    def stop_playback(self, channel=-1):
+        """Stops the audio playback"""
+        return sdlmixer.Mix_HaltChannel(channel)
 
     def free_resource(self, filename):
         """Free resources"""
