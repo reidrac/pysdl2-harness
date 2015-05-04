@@ -3,6 +3,7 @@
 from harness import Game
 
 game = Game(title="pysdl2 HARNESS demo", width=240, height=240, zoom=3)
+background = game.load_resource("background.png")
 title = game.load_resource("title.png")
 font = game.load_bitmap_font("font.png", width=6, height=10)
 
@@ -14,16 +15,22 @@ class MenuScene(object):
         self.counter = 2
 
     def draw(self, renderer):
-        renderer.draw(title)
+        renderer.draw(background)
+        renderer.draw(title, dest_rect=(0, 40, 240, 60))
 
-        if 2 < self.counter < 10:
+        if 2 < self.counter < 12:
             renderer.draw_text(font, 120, 120, "Press 's' to start!", align="center")
+
+        renderer.draw_text(font, 120, 10, "Copyright (c) 2015 usebox.net", align="center")
+
+        renderer.draw_text(font, 120, 200, "Use the arrows to move", align="center")
+        renderer.draw_text(font, 120, 212, "and collect the goodies!", align="center")
 
     def update(self, dt):
 
         self.counter += dt * 10
-        if self.counter > 10:
-            self.counter -= 10
+        if self.counter > 12:
+            self.counter -= 12
 
         if game.keys[game.KEY_ESCAPE]:
             game.quit()
