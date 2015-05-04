@@ -15,6 +15,7 @@ font = game.load_bitmap_font("font.png", width=6, height=10)
 
 dance = game.load_resource("harness-dance.ogg")
 dance_hurry = game.load_resource("harness-dance-hurry.ogg")
+gameover = game.load_resource("gameover.ogg")
 hurryup = game.load_resource("hurryup.ogg")
 time = game.load_resource("time.ogg")
 
@@ -171,13 +172,14 @@ class PlayScene(object):
 
         # set GAME OVER
         if int(self.time) == 0:
-            self.game_over = 60
+            self.game_over = 80
 
             # stop music
             if self.music_channel is not None:
                 game.stop_playback(self.music_channel)
 
-            # TODO: play game over
+            # play it once
+            game.play(gameover)
 
         if game.keys[game.KEY_ESCAPE]:
             # avoid leaving the game just after
