@@ -79,23 +79,19 @@ class PlayScene(object):
 
     def __init__(self):
         self.score = 0
-        self.stage = 1
-        self.time = 20
-        self.ready_delay = 16
-        self.music_channel = None
-        self.hurry_up = None
-        self.game_over = None
-        self.time_tint = None
-        self.prev_time = 0
+
+        # stage 1
+        self.stage = 0
+        self.next_stage()
 
     def next_stage(self):
-        self.score += 1000
         self.stage += 1
         self.ready_delay = 16
         self.time = 99
         self.music_channel = None
         self.hurry_up = None
         self.time_tint = None
+        self.game_over = None
         self.prev_time = 0
 
     def draw(self, renderer):
