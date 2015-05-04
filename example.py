@@ -2,24 +2,62 @@
 
 from harness import Game
 
-game = Game(width=240, height=240)
-title_tex = game.load_resource("title.bmp")
+game = Game(title="pysdl2 HARNESS demo", width=240, height=240, zoom=3)
+title = game.load_resource("title.png")
+font = game.load_bitmap_font("font.png", width=6, height=10)
+
+scenes = []
+
+class MenuScene(object):
+
+    def __init__(self):
+        self.counter = 0
+
+    def draw(self, renderer):
+        renderer.draw(title)
+
+        if 2 < self.counter < 10:
+            renderer.draw_text(font, 120, 120, "Press 's' to start!", align="center")
+
+    def update(self, dt):
+
+        self.counter += dt * 10
+        if self.counter > 10:
+            self.counter -= 10
+
+        if game.keys[game.KEY_ESCAPE]:
+            game.quit()
+        elif game.keys[game.KEY_S]:
+            # press "s" to play
+            scenes.append(PlayScene())
+            return
+
+class PlayScene(object):
+
+    def draw(self, renderer):
+        pass
+
+    def update(self, dt):
+        if game.keys[game.KEY_ESCAPE]:
+            # avoid leaving the game just after
+            # leaving this scene!
+            game.keys[game.KEY_ESCAPE] = False
+
+            # go to previous scene
+            scenes.pop()
+            return
 
 @game.draw
 def draw(renderer):
-    # draw your textures, optionally provide two tuples describing
-    # source and destination rects
-    renderer.draw(title_tex)
+    # draw last scene
+    scenes[-1].draw(renderer)
 
 @game.update
 def update(dt):
-    # update your game logic, dt is constant Game.UPDATE_FPS
-    # use game.quit() to exit the game loop
+    # uddate last scene
+    scenes[-1].update(dt)
 
-    # key state can be checked in "keys" dict using KEY_* constants
-    if game.keys[game.KEY_ESCAPE]:
-        game.quit()
+scenes.append(MenuScene())
 
-# will return when exits
 game.loop()
 
