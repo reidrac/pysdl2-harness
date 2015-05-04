@@ -11,7 +11,7 @@ scenes = []
 class MenuScene(object):
 
     def __init__(self):
-        self.counter = 0
+        self.counter = 2
 
     def draw(self, renderer):
         renderer.draw(title)
