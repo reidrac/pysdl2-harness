@@ -58,8 +58,10 @@ class PlayScene(object):
     def __init__(self):
         self.score = 0
         self.stage = 1
-        self.time = 99
+        self.time = 20
         self.ready_delay = 16
+        self.hurry_up = None
+        self.game_over = None
 
     def draw(self, renderer):
         renderer.draw(background)
@@ -68,17 +70,59 @@ class PlayScene(object):
         renderer.draw_text(font, 236, 4, "STAGE %i" % self.stage, align="right")
         renderer.draw_text(font, 120, 9, "TIME: %02i" % int(self.time), align="center")
 
+        # show READY? before starting
         if self.ready_delay > 0:
             renderer.draw_text(font, 120, 100, "READY?", align="center")
             return
 
+        # blink a warning when the time is running out
+        if self.hurry_up and int(self.hurry_up) & 1:
+            renderer.draw_text(font, 120, 100, "HURRY UP!", align="center")
+            return
+
+        # game over
+        if self.game_over:
+            renderer.draw_text(font, 120, 100, "GAME OVER", align="center")
+            return
+
     def update(self, dt):
 
+        # GAME OVER
+        if self.game_over:
+            self.game_over -= dt * 10
+
+            if self.game_over <= 0:
+                global hiscore
+                if self.score > hiscore:
+                    hiscore = self.score
+
+                # back to menu
+                scenes.pop()
+            return
+
+        # READY? delay
         if self.ready_delay > 0:
             self.ready_delay -= dt * 10
             return
 
+        # HURRY UP! delay
+        if self.hurry_up:
+            self.hurry_up -= dt * 10
+
+            if self.hurry_up <= 0:
+                self.hurry_up = 0
+            else:
+                return
+
         self.time -= dt
+
+        # set HURRY UP once
+        if int(self.time) == 10 and self.hurry_up is None:
+            self.hurry_up = 12
+
+        # set GAME OVER
+        if int(self.time) == 0:
+            self.game_over = 60
 
         if game.keys[game.KEY_ESCAPE]:
             # avoid leaving the game just after
