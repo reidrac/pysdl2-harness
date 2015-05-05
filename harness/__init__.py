@@ -33,12 +33,14 @@ version = "0.1-alpha"
 try:
     import sdl2
 except ImportError as ex:
-    sys.exit("SDL2 library not found: %s" % ex)
+    if not hasattr(sys, "_gen_docs"):
+        sys.exit("SDL2 library not found: %s" % ex)
 
 try:
     from sdl2 import sdlmixer
 except ImportError as ex:
-    sys.exit("SDL2_Mixer library not found: %s" % ex)
+    if not hasattr(sys, "_gen_docs"):
+        sys.exit("SDL2_Mixer library not found: %s" % ex)
 
 
 class Game(object):
@@ -203,7 +205,18 @@ class Game(object):
         self.dt = 0
         self.update_handlers = []
         self.draw_handlers = []
-        self.resource_path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "data"),]
+
+        # try to find the script directory
+        if "__main__" in globals():
+            main = globals().__main__
+        else:
+            import __main__ as main
+        main_file = getattr(main, "__file__", ".")
+
+        self.resource_path = [
+                os.path.join(os.path.dirname(os.path.realpath(main_file)), "data"),
+                ]
+
         self.resources = {}
 
         for attr in dir(sdl2):
