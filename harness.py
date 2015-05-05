@@ -40,81 +40,6 @@ try:
 except ImportError as ex:
     sys.exit("SDL2_Mixer library not found: %s" % ex)
 
-BitmapFont = namedtuple("BitmapFont", ["texture", "width", "height", "font_map"])
-
-class Renderer(object):
-    """Wrapper for the renderer to be used by the draw functions"""
-    def __init__(self, renderer):
-        self.renderer = renderer
-
-    def draw(self, texture, src_rect=None, dest_rect=None, tint=None):
-        """
-        Draw a texture.
-
-        Parameters:
-
-            texture: font name (load it first with load_bitmap_font).
-            src_rect: tuple with the rect defining the section of the texture to draw.
-            dest_rect: tuple with the rect defining the section of the destination.
-            tint: colour the text texture, tuple with (r, g, b, alpha).
-        """
-        if isinstance(src_rect, tuple):
-            src = sdl2.SDL_Rect(*src_rect)
-        else:
-            src = None
-
-        if isinstance(dest_rect, tuple):
-            dest = sdl2.SDL_Rect(*dest_rect)
-        else:
-            dest = None
-
-        if isinstance(tint, tuple) and len(tint) == 4:
-            sdl2.SDL_SetTextureColorMod(texture, *tint)
-        else:
-            tint = None
-
-        sdl2.SDL_RenderCopy(self.renderer, texture, src, dest)
-
-        if tint:
-            sdl2.SDL_SetTextureColorMod(texture, 255, 255, 255, 255)
-
-    def draw_text(self, font, x, y, text, align="left", tint=None):
-        """
-        Draw text using a texture.
-
-        Parameters:
-
-            font: font name (load it first with load_bitmap_font).
-            x: horizontal position on the screen.
-            y: vertical position on the screen.
-            text: the text to render.
-            align: "left", "right" or "center" (defaults to "left").
-            tint: colour the text texture, tuple with (r, g, b, alpha).
-        """
-        width = len(text) * font.width
-
-        if align == "center":
-            x -= width // 2
-            y -= font.height // 2
-        elif align == "right":
-            x -= width
-
-        src = sdl2.SDL_Rect(0, 0, font.width, font.height)
-        dest = sdl2.SDL_Rect(0, y, font.width, font.height)
-
-        if isinstance(tint, tuple) and len(tint) == 4:
-            sdl2.SDL_SetTextureColorMod(font.texture, *tint)
-        else:
-            tint = None
-
-        for i, c in enumerate(text):
-            index = font.font_map.find(c)
-            src.x = index * font.width
-            dest.x = x + i * font.width
-            sdl2.SDL_RenderCopy(self.renderer, font.texture, src, dest)
-
-        if tint:
-            sdl2.SDL_SetTextureColorMod(font.texture, 255, 255, 255, 255)
 
 class Game(object):
     """
@@ -217,8 +142,8 @@ class Game(object):
     Audio
 
         game.play can be used to play a sample loaded with game.load_resource.
-        Optionally a "loops" can be provided stating how many times the sample
-        will be repeated (use -1 for an infinite loop).
+        Optionally a "loops" parameter can be provided stating how many times
+        the sample will be repeated (use -1 for an infinite loop).
 
         game.play returns the channel number used to play the sample and that
         channel can be muted with game.stop_playback (don't provide a channel
@@ -451,4 +376,80 @@ class Game(object):
                           )
         self.bitmap_fonts[filename] = font
         return font
+
+class Renderer(object):
+    """Wrapper for the renderer to be used by the draw functions"""
+    def __init__(self, renderer):
+        self.renderer = renderer
+
+    def draw(self, texture, src_rect=None, dest_rect=None, tint=None):
+        """
+        Draw a texture.
+
+        Parameters:
+
+            texture: font name (load it first with load_bitmap_font).
+            src_rect: tuple with the rect defining the section of the texture to draw.
+            dest_rect: tuple with the rect defining the section of the destination.
+            tint: colour the text texture, tuple with (r, g, b, alpha).
+        """
+        if isinstance(src_rect, tuple):
+            src = sdl2.SDL_Rect(*src_rect)
+        else:
+            src = None
+
+        if isinstance(dest_rect, tuple):
+            dest = sdl2.SDL_Rect(*dest_rect)
+        else:
+            dest = None
+
+        if isinstance(tint, tuple) and len(tint) == 4:
+            sdl2.SDL_SetTextureColorMod(texture, *tint)
+        else:
+            tint = None
+
+        sdl2.SDL_RenderCopy(self.renderer, texture, src, dest)
+
+        if tint:
+            sdl2.SDL_SetTextureColorMod(texture, 255, 255, 255, 255)
+
+    def draw_text(self, font, x, y, text, align="left", tint=None):
+        """
+        Draw text using a texture.
+
+        Parameters:
+
+            font: font name (load it first with load_bitmap_font).
+            x: horizontal position on the screen.
+            y: vertical position on the screen.
+            text: the text to render.
+            align: "left", "right" or "center" (defaults to "left").
+            tint: colour the text texture, tuple with (r, g, b, alpha).
+        """
+        width = len(text) * font.width
+
+        if align == "center":
+            x -= width // 2
+            y -= font.height // 2
+        elif align == "right":
+            x -= width
+
+        src = sdl2.SDL_Rect(0, 0, font.width, font.height)
+        dest = sdl2.SDL_Rect(0, y, font.width, font.height)
+
+        if isinstance(tint, tuple) and len(tint) == 4:
+            sdl2.SDL_SetTextureColorMod(font.texture, *tint)
+        else:
+            tint = None
+
+        for i, c in enumerate(text):
+            index = font.font_map.find(c)
+            src.x = index * font.width
+            dest.x = x + i * font.width
+            sdl2.SDL_RenderCopy(self.renderer, font.texture, src, dest)
+
+        if tint:
+            sdl2.SDL_SetTextureColorMod(font.texture, 255, 255, 255, 255)
+
+BitmapFont = namedtuple("BitmapFont", ["texture", "width", "height", "font_map"])
 
