@@ -84,7 +84,7 @@ class Game(object):
 
         The update functions should expect a "dt" parameter that provides
         the delta time (time elapsed between updates); in this case fixed
-        at UPDATE_DT (1 / UPDATE_FPS).
+        at DRAW_DT (1 / DRAW_FPS).
 
         Example:
 
@@ -182,10 +182,6 @@ class Game(object):
             game.loop()
         ```
     """
-    # the update functions will be called a fixed number of FPS
-    UPDATE_FPS = 80
-    UPDATE_DT = 1.0 / UPDATE_FPS
-
     # draw frames per second
     FPS = 60
     DRAW_DT = 1.0 / FPS
@@ -223,7 +219,7 @@ class Game(object):
             if attr.startswith("SDL_SCANCODE_"):
                 setattr(self, attr.replace("SDL_SCANCODE_", "KEY_"), getattr(sdl2, attr))
 
-        sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO|sdl2.SDL_INIT_AUDIO)
+        sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO|sdl2.SDL_INIT_AUDIO|sdl2.SDL_INIT_TIMER)
         sdlmixer.Mix_Init(sdlmixer.MIX_INIT_OGG)
         sdlmixer.Mix_OpenAudio(44100, sdlmixer.MIX_DEFAULT_FORMAT, self.AUDIO_CHANNELS, 1024)
 
@@ -242,11 +238,8 @@ class Game(object):
 
     def _update(self, dt):
 
-        self.dt += dt
-        while self.dt >= self.UPDATE_DT:
-            for update in self.update_handlers:
-                update(self.UPDATE_DT)
-            self.dt -= self.UPDATE_DT
+        for update in self.update_handlers:
+            update(self.DRAW_DT)
 
     def _draw(self):
 
@@ -263,23 +256,25 @@ class Game(object):
 
         current = sdl2.SDL_GetTicks()
         while not self._quit:
+            new = sdl2.SDL_GetTicks()
+            elapsed = new - current
+            current = new
+
             event = sdl2.SDL_Event()
             while sdl2.SDL_PollEvent(ctypes.byref(event)) != 0:
                 if event.type == sdl2.SDL_QUIT:
                     self._quit = True
                     break
 
+            if elapsed < self.DRAW_DT:
+                sdl2.SDL_Delay(int((self.DRAW_DT * 1000.0) - elapsed))
+
             self.keys = sdl2.SDL_GetKeyboardState(None)
+            self._update(elapsed)
 
-            new = sdl2.SDL_GetTicks()
-            self._update(new - current)
-
-            if new - current > self.DRAW_DT:
-                sdl2.SDL_RenderClear(self.renderer)
-                self._draw()
-                sdl2.SDL_RenderPresent(self.renderer)
-
-            current = new
+            sdl2.SDL_RenderClear(self.renderer)
+            self._draw()
+            sdl2.SDL_RenderPresent(self.renderer)
 
         for resource in self.resources.copy().keys():
             self.free_resource(resource)

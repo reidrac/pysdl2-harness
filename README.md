@@ -39,7 +39,7 @@ def draw(renderer):
 
 @game.update
 def update(dt):
-	# update your game logic, dt is constant 1 / Game.UPDATE_FPS
+	# update your game logic, dt is constant 1 / Game.DRAW_FPS
 	# use game.quit() to exit the game loop
 
 	# key state can be checked in "keys" dict using KEY_* constants
