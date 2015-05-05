@@ -11,8 +11,10 @@ game = Game(title="pysdl2 HARNESS demo", width=240, height=240, zoom=3)
 
 background = game.load_resource("background.png")
 title = game.load_resource("title.png")
-tiles = game.load_resource("tiles.png")
 font = game.load_bitmap_font("font.png", width=6, height=10)
+
+# load all the sprites in just one image so they're in one big texture
+tiles = game.load_resource("tiles.png")
 
 dance = game.load_resource("harness-dance.ogg")
 dance_hurry = game.load_resource("harness-dance-hurry.ogg")
@@ -25,6 +27,7 @@ hiscore = 0
 
 class MenuScene(object):
 
+    # only one direction
     dragon_frames = ((0, 24, 24, 24), (24, 24, 24, 24))
     knight_frames = ((48, 48, 24, 24), (72, 48, 24, 24))
 
@@ -58,11 +61,18 @@ class MenuScene(object):
                     align="center", tint=(98, 100, 220, 255))
 
             # draw the animation cycle; frame 1 will be drawn 1 pixel higher
-            renderer.draw(tiles, src_rect=self.dragon_frames[self.frame], dest_rect=(12, 192 - self.frame, 24, 24))
-            renderer.draw(tiles, src_rect=self.knight_frames[self.frame], dest_rect=(204, 192 - self.frame, 24, 24))
+            renderer.draw(tiles,
+                          src_rect=self.dragon_frames[self.frame],
+                          dest_rect=(12, 192 - self.frame, 24, 24),
+                          )
+            renderer.draw(tiles,
+                          src_rect=self.knight_frames[self.frame],
+                          dest_rect=(204, 192 - self.frame, 24, 24)
+                          )
 
     def update(self, dt):
 
+        # initial animation (title falls into place)
         if self.title_y < 40:
             self.title_y += dt * 120
             return
@@ -74,15 +84,18 @@ class MenuScene(object):
             # loop the intro music
             self.intro_channel = game.play(dance, loops=-1)
 
+        # the "start" will blnk
         self.counter += dt * 10
         if self.counter > 12:
             self.counter -= 12
 
+        # frame animation
         self.anim_delay += dt * 10
         if self.anim_delay > 1.5:
             self.anim_delay = 0
             self.frame = 0 if self.frame else 1
 
+        # controls
         if game.keys[game.KEY_ESCAPE]:
             game.quit()
         elif game.keys[game.KEY_S]:
