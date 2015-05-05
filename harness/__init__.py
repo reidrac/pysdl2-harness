@@ -246,7 +246,7 @@ class Game(object):
         while self.dt >= self.UPDATE_DT:
             for update in self.update_handlers:
                 update(self.UPDATE_DT)
-            self.dt -= dt
+            self.dt -= self.UPDATE_DT
 
     def _draw(self):
 
