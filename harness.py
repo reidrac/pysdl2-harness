@@ -205,7 +205,6 @@ class Game(object):
         self.draw_handlers = []
         self.resource_path = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "data"),]
         self.resources = {}
-        self.bitmap_fonts = {}
 
         for attr in dir(sdl2):
             if attr.startswith("SDL_SCANCODE_"):
@@ -374,7 +373,6 @@ class Game(object):
                           height=height,
                           font_map=font_map,
                           )
-        self.bitmap_fonts[filename] = font
         return font
 
 class Renderer(object):
