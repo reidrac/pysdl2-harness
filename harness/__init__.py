@@ -184,6 +184,8 @@ class Game(object):
     # draw frames per second
     FPS = 60
     DRAW_DT = 1.0 / FPS
+    # draw frames per milisecond
+    DRAW_FPMS = DRAW_DT * 1000.0
 
     FONT_MAP = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?()@:/'., "
 
@@ -265,10 +267,11 @@ class Game(object):
                     self._quit = True
                     break
 
-            if elapsed < self.DRAW_DT:
-                sdl2.SDL_Delay(int((self.DRAW_DT * 1000.0) - elapsed))
-
             self.keys = sdl2.SDL_GetKeyboardState(None)
+
+            if elapsed < self.DRAW_FPMS:
+                sdl2.SDL_Delay(int(self.DRAW_FPMS - elapsed))
+
             self._update(elapsed)
 
             sdl2.SDL_RenderClear(self.renderer)
