@@ -41,7 +41,7 @@ def update(dt):
 game.loop()
 ```
 
-See `harness.py` docstrings for a complete list of classes and methods.
+See `harness` module docstrings for a complete list of classes and methods.
 
 There's an example game in `example.py`.
 
