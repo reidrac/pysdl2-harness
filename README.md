@@ -25,7 +25,7 @@ Example:
 
 from harness import Game
 
-game = Game(width=320, height=240)
+game = Game(width=320, height=240, zoom=3)
 
 title = game.load_resource("title.bmp")
 
