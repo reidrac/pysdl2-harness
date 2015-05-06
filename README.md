@@ -61,7 +61,7 @@ Harness implements a game loop with a fixed frame rate of `GAME.FPS`.
 
 The usual worflow is:
 
- 1. Create a Game objecti (eg, game).
+ 1. Create a Game object (we'll call it `game` in the examples).
  2. Load resources.
  3. Declare the draw and update funtions.
  3. Run `game.loop()`.
@@ -145,13 +145,13 @@ Depending on the resource some extra libraries may be required in the system
 
 Resources not in use can be freed using `game.free_resources()` method, but
 be careful to not use any reference to the resource once it has been released.
-
 Harness will free all resources after exiting the game loop.
 
 #### 2.1 Bitmap fonts
 
 `game.load_bitmap_font` can be used to load a image that will be used to draw
-text with `renderer.draw_text()`.
+text with `renderer.draw_text()`. Harness will map a text string into a fixed
+width and height part of the font image.
 
 Example:
 ```python
@@ -196,14 +196,15 @@ The method `game.play()` can be used to play a sample loaded with
 `game.load_resource()`. Optionally a `loops` parameter can be provided stating
 how many times the sample will be repeated (use -1 for an infinite loop).
 
-By default .ogg and .wav files are supported.
+By default .ogg and .wav files are supported (in theory it could load any
+format supported by SDL\_Mixer but Harness will only identify files with the
+aforementioned extensions).
 
 `game.play()` returns the channel number used to play the sample and that
 number can be used to muted the channel with `game.stop_playback()` (don't
 provide a channel number to stop all channels).
 
 By default `Game.AUDIO_CHANNElS` channels are allocated (6 channels).
-
 
 ## Author
 
