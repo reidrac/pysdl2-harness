@@ -439,7 +439,7 @@ class Renderer(object):
 
     def draw_text(self, font, x, y, text, align="left", tint=None):
         """
-        Draw text using a texture.
+        Draw text using a bitmap font.
 
         Parameters:
 
