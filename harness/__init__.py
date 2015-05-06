@@ -44,142 +44,15 @@ except ImportError as ex:
 
 class Game(object):
     """
-    Game object.
+    Game object
 
     Parameters:
 
-        title: windows title
-        width: with in pixels of the draw area
-        height: height in pixels of the draw area
-        zoom: scale up the output, or use 1 to disable
+        title: windows title.
+        width: with in pixels of the draw area.
+        height: height in pixels of the draw area.
+        zoom: scale up the output, or use 1 to disable.
 
-    The Game loop
-
-        Call it once and it will run until the game is quitted (eg, using
-        "quit()" method).
-
-        It implements fixed draw (cap a FPS) and fixed updates.
-
-        Define draw functions with the "game.draw" decorator, and update
-        functions with the "game.update" decorator.
-
-        The draw functions should expect a "renderer" parameter that
-        allows to draw textures and bitmap fonts.
-
-        Example:
-
-        ```python
-
-            game = Game()
-
-            tex = game.load_resource("bitmap.bmp")
-
-            @game.draw
-            def draw(renderer):
-                renderer.draw(tex)
-
-            game.loop()
-        ```
-
-        The update functions should expect a "dt" parameter that provides
-        the delta time (time elapsed between updates); in this case fixed
-        at DRAW_DT (1 / DRAW_FPS).
-
-        Example:
-
-        ```python
-
-            game = Game()
-
-            @game.update
-            def update(dt):
-                print("%s elapsed" % dt)
-
-            game.loop()
-        ```
-
-        Several draw and update functions can be defined and they will be
-        run in the same order they were defined.
-
-        The game instance can be accessed from the update function to
-        test for key states, quite the game, etc.
-
-    Loading resources
-
-        This method allows loading resources searching for them
-        in the paths specified in game.resource_path.
-
-        By default this files will be searched in the "data"
-        subdirectory at the same level as the script running
-        the game.
-
-        Depending on the resource some extra libraries may be
-        required in the system (eg, SDL_Image).
-
-        Resources not in use can be freed using game.free_resources(filename)
-        method.
-
-    Bitmap fonts
-
-        game.load_bitmap_font can be used to load a image that will be
-        used to draw text with renderer.draw_text.
-
-        Example:
-        ```python
-
-            game = Game()
-
-            font = game.load_bitmap_font("font.png", width=6, height=10)
-
-            @game.draw
-            def draw(renderer):
-                renderer.draw_text(font, 10, 10, "This is a text!")
-
-            game.loop()
-        ```
-
-        Fonts can be freed with game.free_resources.
-
-    Audio
-
-        game.play can be used to play a sample loaded with game.load_resource.
-        Optionally a "loops" parameter can be provided stating how many times
-        the sample will be repeated (use -1 for an infinite loop).
-
-        game.play returns the channel number used to play the sample and that
-        channel can be muted with game.stop_playback (don't provide a channel
-        number to stop all channels).
-
-        By default Game.AUDIO_CHANNElS channels are allocated.
-
-    Useful properties
-
-        Keyboard
-
-        keys: updated in each update loop with the status of all the keys.
-        KEY_*: constants to test in the "keys" dictionay.
-
-        Resources
-
-        resource_path: list of paths to search for resources.
-
-    Useful methods
-
-        quit(): quit the game.
-
-        Example:
-        ```python
-
-            game = Game()
-
-            @game.update
-            def update(dt):
-
-                if game.keys[game.KEY_ESCAPE]:
-                    game.quit()
-
-            game.loop()
-        ```
     """
     # draw frames per second
     FPS = 60
@@ -252,7 +125,7 @@ class Game(object):
         self._quit = True
 
     def loop(self):
-        """The game loop"""
+        """The game loop!"""
         sdl2.SDL_ShowWindow(self.window)
 
         current = sdl2.SDL_GetTicks()
@@ -364,12 +237,12 @@ class Game(object):
 
     def load_bitmap_font(self, filename, width, height, font_map=None):
         """
-        Loads a bitmap font.
+        Loads a bitmap font
 
         Parameters:
 
             filename: image containing the font (eg, font.png).
-            width: wiidth of a font character.
+            width: width of a font character.
             height: height of a font character.
             font_map: string with the order of the characters in the font.
 
@@ -406,7 +279,7 @@ class Renderer(object):
 
     def draw(self, texture, x=None, y=None, src_rect=None, dest_rect=None, tint=None):
         """
-        Draw a texture.
+        Draws a texture
 
         Parameters:
 
@@ -439,7 +312,7 @@ class Renderer(object):
 
     def draw_text(self, font, x, y, text, align="left", tint=None):
         """
-        Draw text using a bitmap font.
+        Draws text using a bitmap font
 
         Parameters:
 
@@ -480,7 +353,7 @@ class Renderer(object):
             sdl2.SDL_SetTextureColorMod(font.texture, 255, 255, 255, 255)
 
 class Texture(object):
-
+    """Wrapper for SDL textures and subtextures"""
     def __init__(self, texture, rect):
         self.texture = texture
         self.width = rect[2]
@@ -492,7 +365,7 @@ class Texture(object):
         return Texture(self.texture, (x, y, width, height))
 
 class BitmapFont(object):
-
+    """Bitmap font object"""
     def __init__(self, texture, width, height, font_map):
         self.texture = texture.texture
         self.rect = texture.rect
