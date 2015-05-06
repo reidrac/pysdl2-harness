@@ -26,7 +26,6 @@ THE SOFTWARE.
 import sys
 import os
 import ctypes
-from collections import namedtuple
 
 version = "0.1-alpha"
 
@@ -332,7 +331,8 @@ class Game(object):
                 sys.exit("Error loading %r: %s" % (filename, sdl2.SDL_GetError()))
 
             resource = sdl2.SDL_CreateTextureFromSurface(self.renderer, image);
-            free_fn = sdl2.SDL_DestroyTexture
+            free_fn = lambda : sdl2.SDL_DestroyTexture(resource)
+
             sdl2.SDL_FreeSurface(image)
         elif filename[-4:] in (".png", ".gif", ".jpg"):
             from sdl2 import sdlimage
@@ -341,8 +341,10 @@ class Game(object):
             if not image:
                 sys.exit("Error loading %r: %s" % (filename, sdlimage.IMG_GetError()))
 
-            resource = sdl2.SDL_CreateTextureFromSurface(self.renderer, image);
-            free_fn = sdl2.SDL_DestroyTexture
+            texture = sdl2.SDL_CreateTextureFromSurface(self.renderer, image);
+            free_fn = lambda : sdl2.SDL_DestroyTexture(texture)
+            resource = Texture(texture, (0, 0, image.contents.w, image.contents.h))
+
             sdl2.SDL_FreeSurface(image)
         elif filename[-4:] in (".wav", ".ogg"):
             audio = sdlmixer.Mix_LoadWAV(found_path.encode())
@@ -350,11 +352,11 @@ class Game(object):
                 sys.exit("Error loading %r: %s" % (filename, sdlmixer.Mix_GetError()))
 
             resource = audio
-            free_fn = sdlmixer.Mix_FreeChunk
+            free_fn = lambda : sdlmixer.Mix_FreeChunk(resource)
         else:
             return open(filename, "rb")
 
-        self.resources[filename] = lambda : free_fn(resource)
+        self.resources[filename] = free_fn
         return resource
 
     def load_bitmap_font(self, filename, width, height, font_map=None):
@@ -388,36 +390,49 @@ class Renderer(object):
     def __init__(self, renderer):
         self.renderer = renderer
 
-    def draw(self, texture, src_rect=None, dest_rect=None, tint=None):
+    def _get_rect(self, texture, rect=None):
+        _rect = rect
+
+        if isinstance(texture, Texture):
+            _rect = texture.sdl_rect
+
+        if isinstance(rect, tuple):
+            _rect = sdl2.SDL_Rect(*rect)
+
+        return _rect
+
+    def draw(self, texture, x=None, y=None, src_rect=None, dest_rect=None, tint=None):
         """
         Draw a texture.
 
         Parameters:
 
-            texture: font name (load it first with load_bitmap_font).
+            texture: texture created with Game.load_resource or Texture.get_texture.
+            x: horizontal location to draw the whole texture.
+            y: vertical location to draw the whole texture.
             src_rect: tuple with the rect defining the section of the texture to draw.
-            dest_rect: tuple with the rect defining the section of the destination.
+            dest_rect: tuple with the rect defining the section of the destination. If
+              this parameter is used, x and y are ignored.
             tint: colour the text texture, tuple with (r, g, b, alpha).
         """
-        if isinstance(src_rect, tuple):
-            src = sdl2.SDL_Rect(*src_rect)
-        else:
-            src = None
 
-        if isinstance(dest_rect, tuple):
-            dest = sdl2.SDL_Rect(*dest_rect)
-        else:
-            dest = None
+        _texture = texture.texture
+        src = self._get_rect(texture, src_rect)
+
+        _dest_rect = dest_rect
+        if _dest_rect is None and all([x, y]):
+            _dest_rect = (x, y, texture.rect[2], texture.rect[3])
+        dest = self._get_rect(texture, _dest_rect)
 
         if isinstance(tint, tuple) and len(tint) == 4:
-            sdl2.SDL_SetTextureColorMod(texture, *tint)
+            sdl2.SDL_SetTextureColorMod(_texture, *tint)
         else:
             tint = None
 
-        sdl2.SDL_RenderCopy(self.renderer, texture, src, dest)
+        sdl2.SDL_RenderCopy(self.renderer, _texture, src, dest)
 
         if tint:
-            sdl2.SDL_SetTextureColorMod(texture, 255, 255, 255, 255)
+            sdl2.SDL_SetTextureColorMod(_texture, 255, 255, 255, 255)
 
     def draw_text(self, font, x, y, text, align="left", tint=None):
         """
@@ -425,7 +440,7 @@ class Renderer(object):
 
         Parameters:
 
-            font: font name (load it first with load_bitmap_font).
+            font: font (load it first with load_bitmap_font).
             x: horizontal position on the screen.
             y: vertical position on the screen.
             text: the text to render.
@@ -440,7 +455,11 @@ class Renderer(object):
         elif align == "right":
             x -= width
 
-        src = sdl2.SDL_Rect(0, 0, font.width, font.height)
+        src = sdl2.SDL_Rect(font.rect[0],
+                            font.rect[1],
+                            font.width,
+                            font.height,
+                            )
         dest = sdl2.SDL_Rect(0, y, font.width, font.height)
 
         if isinstance(tint, tuple) and len(tint) == 4:
@@ -450,12 +469,32 @@ class Renderer(object):
 
         for i, c in enumerate(text):
             index = font.font_map.find(c)
-            src.x = index * font.width
+            src.x = font.rect[0] + index * font.width
             dest.x = x + i * font.width
             sdl2.SDL_RenderCopy(self.renderer, font.texture, src, dest)
 
         if tint:
             sdl2.SDL_SetTextureColorMod(font.texture, 255, 255, 255, 255)
 
-BitmapFont = namedtuple("BitmapFont", ["texture", "width", "height", "font_map"])
+class Texture(object):
+
+    def __init__(self, texture, rect):
+        self.texture = texture
+        self.width = rect[2]
+        self.height = rect[3]
+        self.rect = rect
+        self.sdl_rect = sdl2.SDL_Rect(*rect)
+
+    def get_texture(self, x, y, width, height):
+        return Texture(self.texture, (x, y, width, height))
+
+class BitmapFont(object):
+
+    def __init__(self, texture, width, height, font_map):
+        self.texture = texture.texture
+        self.rect = texture.rect
+        self.sdl_rect = texture.sdl_rect
+        self.width = width
+        self.height = height
+        self.font_map = font_map
 

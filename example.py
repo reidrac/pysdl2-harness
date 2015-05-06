@@ -39,6 +39,9 @@ class MenuScene(object):
         self.anim_delay = 0
         self.frame = 0
 
+        self.dragon = [tiles.get_texture(*frames) for frames in self.dragon_frames]
+        self.knight = [tiles.get_texture(*frames) for frames in self.knight_frames]
+
         self.boing = game.load_resource("boing.ogg")
         game.play(self.boing)
 
@@ -61,13 +64,13 @@ class MenuScene(object):
                     align="center", tint=(98, 100, 220, 255))
 
             # draw the animation cycle; frame 1 will be drawn 1 pixel higher
-            renderer.draw(tiles,
-                          src_rect=self.dragon_frames[self.frame],
-                          dest_rect=(12, 192 - self.frame, 24, 24),
+            renderer.draw(self.dragon[self.frame],
+                          x = 12,
+                          y = 192 - self.frame,
                           )
-            renderer.draw(tiles,
-                          src_rect=self.knight_frames[self.frame],
-                          dest_rect=(204, 192 - self.frame, 24, 24)
+            renderer.draw(self.knight[self.frame],
+                          x = 204,
+                          y = 192 - self.frame,
                           )
 
     def update(self, dt):
