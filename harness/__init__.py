@@ -110,6 +110,18 @@ class Game(object):
         if self.zoom != 1:
             sdl2.SDL_RenderSetScale(self.renderer, self.zoom, self.zoom)
 
+    def set_icon(self, filename):
+        """Sets the window icon from an image"""
+        from sdl2 import sdlimage
+
+        found_path = self._find_path(filename)
+        image = sdlimage.IMG_Load(found_path.encode())
+        if not image:
+            sys.exit("Error loading %r: %s" % (filename, sdlimage.IMG_GetError()))
+
+        sdl2.SDL_SetWindowIcon(self.window, image)
+        sdl2.SDL_FreeSurface(image)
+
     def _update(self, dt):
 
         for update in self.update_handlers:
@@ -188,9 +200,7 @@ class Game(object):
         free_fn()
         del self.resources[filename]
 
-    def load_resource(self, filename):
-        """Loads resources"""
-
+    def _find_path(self, filename):
         found_path = None
         for path in self.resource_path:
             full_path = os.path.realpath(os.path.join(path, filename))
@@ -199,7 +209,14 @@ class Game(object):
                 break
 
         if found_path is None:
-            raise OSError("Resource not found")
+            raise OSError("Resource not found: %r" % filename)
+
+        return found_path
+
+    def load_resource(self, filename):
+        """Loads resources"""
+
+        found_path = self._find_path(filename)
 
         if filename[-4:] == ".bmp":
             image = sdl2.SDL_LoadBMP(found_path.encode())

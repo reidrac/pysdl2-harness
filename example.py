@@ -16,6 +16,8 @@ font = game.load_bitmap_font("font.png", width=6, height=10)
 # load all the sprites in just one image so they're in one big texture
 tiles = game.load_resource("tiles.png")
 
+game.set_icon("icon.png")
+
 dance = game.load_resource("harness-dance.ogg")
 dance_hurry = game.load_resource("harness-dance-hurry.ogg")
 gameover = game.load_resource("gameover.ogg")
