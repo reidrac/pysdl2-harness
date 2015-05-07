@@ -121,7 +121,7 @@ class PlayScene(object):
         self.score = 0
 
         # subtextures for the board tiles
-        self.tiles = [tiles.get_texture(*tuple([i * 24, 0, 24, 24])) for i in range(4)]
+        self.tiles = [tiles.get_texture(*tuple([i * 24, 0, 24, 24])) for i in range(8)]
 
         # stage 1
         self.stage = 0
@@ -138,23 +138,24 @@ class PlayScene(object):
         self.prev_time = 0
 
         # generate a random board
-        self.board = [randint(0, 3) for i in range(self.BW * self.BH)]
+        self.board = [randint(0, 7) for i in range(self.BW * self.BH)]
 
     def draw(self, renderer):
         renderer.draw(background)
 
         renderer.draw_text(font, 4, 4, "SCORE %04i" % self.score)
         renderer.draw_text(font, 236, 4, "STAGE %i" % self.stage, align="right")
-        renderer.draw_text(font, 120, 9, "TIME: %02i" % int(self.time), align="center", tint=self.time_tint)
+
+        if self.hurry_up:
+            # blink a warning when the time is running out
+            if int(self.hurry_up) & 1:
+                renderer.draw_text(font, 120, 9, "HURRY UP!", align="center")
+        else:
+            renderer.draw_text(font, 120, 9, "TIME: %02i" % int(self.time), align="center", tint=self.time_tint)
 
         # show READY? before starting
         if self.ready_delay > 0:
             renderer.draw_text(font, 120, 100, "READY?", align="center")
-            return
-
-        # blink a warning when the time is running out
-        if self.hurry_up and int(self.hurry_up) & 1:
-            renderer.draw_text(font, 120, 100, "HURRY UP!", align="center")
             return
 
         # game over
