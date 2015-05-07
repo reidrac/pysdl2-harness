@@ -5,6 +5,8 @@ Harness demo, a game example.
 Tested with Python 3.4, may or may not work with Python 2!
 """
 
+from random import randint
+
 from harness import Game
 
 game = Game(title="pysdl2 HARNESS demo", width=240, height=240, zoom=3)
@@ -112,8 +114,14 @@ class MenuScene(object):
 
 class PlayScene(object):
 
+    BW = 8
+    BH = 8
+
     def __init__(self):
         self.score = 0
+
+        # subtextures for the board tiles
+        self.tiles = [tiles.get_texture(*tuple([i * 24, 0, 24, 24])) for i in range(4)]
 
         # stage 1
         self.stage = 0
@@ -128,6 +136,9 @@ class PlayScene(object):
         self.time_tint = None
         self.game_over = None
         self.prev_time = 0
+
+        # generate a random board
+        self.board = [randint(0, 3) for i in range(self.BW * self.BH)]
 
     def draw(self, renderer):
         renderer.draw(background)
@@ -150,6 +161,14 @@ class PlayScene(object):
         if self.game_over:
             renderer.draw_text(font, 120, 100, "GAME OVER", align="center")
             return
+
+        # draw the board
+        for y in range(self.BH):
+            for x in range(self.BW):
+                renderer.draw(self.tiles[self.board[x + y * self.BW]],
+                              x=(120 - (24 * self.BW // 2)) + x * 24,
+                              y=(120 - (24 * self.BH // 2)) + y * 24,
+                              )
 
     def update(self, dt):
 

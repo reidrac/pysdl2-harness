@@ -204,7 +204,7 @@ aforementioned extensions).
 number can be used to muted the channel with `game.stop_playback()` (don't
 provide a channel number to stop all channels).
 
-By default `Game.AUDIO_CHANNElS` channels are allocated (6 channels).
+By default `Game.AUDIO_CHANNELS` channels are allocated (6 channels).
 
 ## Author
 
