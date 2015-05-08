@@ -26,7 +26,6 @@ THE SOFTWARE.
 import sys
 import os
 import ctypes
-import time
 
 version = "0.1-alpha"
 
@@ -141,9 +140,9 @@ class Game(object):
         """The game loop!"""
         sdl2.SDL_ShowWindow(self.window)
 
-        current = time.time()
+        current = sdl2.SDL_GetTicks()
         while not self._quit:
-            new = time.time()
+            new = sdl2.SDL_GetTicks()
             elapsed = new - current
             current = new
 
