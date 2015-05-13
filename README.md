@@ -63,7 +63,7 @@ The usual worflow is:
 
  1. Create a Game object (we'll call it `game` in the examples).
  2. Load resources.
- 3. Declare the draw and update funtions.
+ 3. Declare the draw and update functions.
  3. Run `game.loop()`.
 
 The game loop should be called once  and it will run until the game is quitted
