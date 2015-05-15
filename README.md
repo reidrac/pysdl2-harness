@@ -43,7 +43,8 @@ game.loop()
 
 See `harness` module docstrings for a complete list of classes and methods.
 
-There's an example game in `example.py`.
+There's an example game in `example.py` and remember that you can still use
+pysdl2 directly if you need to!
 
 ## Components
 
