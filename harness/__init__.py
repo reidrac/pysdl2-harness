@@ -122,7 +122,7 @@ class Game(object):
         sdl2.SDL_SetWindowIcon(self.window, image)
         sdl2.SDL_FreeSurface(image)
 
-    def _update(self, dt):
+    def _update(self):
 
         for update in self.update_handlers:
             update(self.DRAW_DT)
@@ -142,9 +142,6 @@ class Game(object):
 
         current = sdl2.SDL_GetTicks()
         while not self._quit:
-            new = sdl2.SDL_GetTicks()
-            elapsed = new - current
-            current = new
 
             event = sdl2.SDL_Event()
             while sdl2.SDL_PollEvent(ctypes.byref(event)) != 0:
@@ -154,14 +151,18 @@ class Game(object):
 
             self.keys = sdl2.SDL_GetKeyboardState(None)
 
-            if elapsed < self.DRAW_FPMS:
-                sdl2.SDL_Delay(int(self.DRAW_FPMS - elapsed))
-
-            self._update(elapsed)
+            self._update()
 
             sdl2.SDL_RenderClear(self.renderer)
             self._draw()
             sdl2.SDL_RenderPresent(self.renderer)
+
+            new = sdl2.SDL_GetTicks()
+            elapsed = new - current
+            current = new
+
+            if elapsed < self.DRAW_FPMS:
+                sdl2.SDL_Delay(int(self.DRAW_FPMS - elapsed))
 
         for resource in self.resources.copy().keys():
             self.free_resource(resource)
