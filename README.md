@@ -58,9 +58,10 @@ components:
 
 ### 1. The Game loop
 
-Harness implements a game loop with a fixed frame rate of `GAME.FPS`.
+Harness implements a game loop with a fixed frame rate determined by the vsync
+of the screen (usually 60 FPS).
 
-The usual worflow is:
+The usual workflow is:
 
  1. Create a Game object (we'll call it `game` in the examples).
  2. Load resources.
@@ -92,8 +93,7 @@ game.loop()
 ```
 
 The update functions should expect a "dt" parameter that provides the delta
-time (time elapsed between updates); in this case fixed at DRAW\_DT (1 /
-DRAW\_FPS).
+time (time elapsed between updates); in this case fixed at UFPS_DT (1 / UFPS).
 
 Example:
 

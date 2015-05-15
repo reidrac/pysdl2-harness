@@ -54,11 +54,8 @@ class Game(object):
         zoom: scale up the output, or use 1 to disable.
 
     """
-    # draw frames per second
-    FPS = 60
-    DRAW_DT = 1.0 / FPS
-    # draw frames per milisecond
-    DRAW_FPMS = DRAW_DT * 1000.0
+    UFPS = 80
+    UFPS_DT = 1.0 / 80
 
     FONT_MAP = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?()@:/'., "
 
@@ -72,7 +69,7 @@ class Game(object):
         self.zoom = zoom
 
         self._quit = False
-        self.dt = 0
+        self._update_dt = 0
         self.update_handlers = []
         self.draw_handlers = []
 
@@ -104,7 +101,8 @@ class Game(object):
                                             self.height * self.zoom,
                                             sdl2.SDL_WINDOW_HIDDEN
                                             )
-        self.renderer = sdl2.SDL_CreateRenderer(self.window, -1, sdl2.SDL_RENDERER_ACCELERATED)
+        self.renderer = sdl2.SDL_CreateRenderer(self.window, -1,
+                sdl2.SDL_RENDERER_ACCELERATED|sdl2.SDL_RENDERER_PRESENTVSYNC)
         self.renderer_obj = Renderer(self.renderer)
 
         if self.zoom != 1:
@@ -122,10 +120,13 @@ class Game(object):
         sdl2.SDL_SetWindowIcon(self.window, image)
         sdl2.SDL_FreeSurface(image)
 
-    def _update(self):
+    def _update(self, dt):
 
-        for update in self.update_handlers:
-            update(self.DRAW_DT)
+        self._update_dt += dt
+        while self._update_dt > self.UFPS_DT:
+            for update in self.update_handlers:
+                update(self.UFPS_DT)
+                self._update_dt -= self.UFPS_DT
 
     def _draw(self):
 
@@ -140,7 +141,8 @@ class Game(object):
         """The game loop!"""
         sdl2.SDL_ShowWindow(self.window)
 
-        current = sdl2.SDL_GetTicks()
+        current = sdl2.SDL_GetPerformanceCounter()
+        freq = sdl2.SDL_GetPerformanceFrequency()
         while not self._quit:
 
             event = sdl2.SDL_Event()
@@ -151,18 +153,13 @@ class Game(object):
 
             self.keys = sdl2.SDL_GetKeyboardState(None)
 
-            self._update()
+            new = sdl2.SDL_GetPerformanceCounter()
+            self._update((new - current) / freq)
+            current = new
 
             sdl2.SDL_RenderClear(self.renderer)
             self._draw()
             sdl2.SDL_RenderPresent(self.renderer)
-
-            new = sdl2.SDL_GetTicks()
-            elapsed = new - current
-            current = new
-
-            if elapsed < self.DRAW_FPMS:
-                sdl2.SDL_Delay(int(self.DRAW_FPMS - elapsed))
 
         for resource in self.resources.copy().keys():
             self.free_resource(resource)
