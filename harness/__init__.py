@@ -63,7 +63,7 @@ class Game(object):
 
     def __init__(self, title=None, width=320, height=200, zoom=1):
 
-        self.title = title.encode() or b"SDL2 Game"
+        self.title = title.encode() if title else b"SDL2 Game"
         self.width = width
         self.height = height
         self.zoom = zoom
