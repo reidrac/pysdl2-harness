@@ -207,6 +207,45 @@ provide a channel number to stop all channels).
 
 By default `Game.AUDIO_CHANNELS` channels are allocated (6 channels).
 
+## Using OOP
+
+Harness can be used in a class to take advantage of object oriented programing
+and avoid the use of global variables. Just use composition and register the
+update and draw methods with `Game.update` and `Game.draw` instead of using
+the decorators:
+
+Example:
+```python
+from harness import Game
+
+class MyGame(object):
+
+    def __init__(self):
+        self.harness = Game()
+
+        # register update and draw methods
+        self.harness.update(self.update)
+        self.harness.draw(self.draw)
+
+        # load some resources
+        self.image = self.harness.load_resource("image.png")
+
+    def run(self):
+        self.harness.loop()
+
+    def update(self, dt):
+        if self.harness.keys[self.harness.KEY_ESCAPE]:
+            self.harness.quit()
+
+    def draw(self, renderer):
+        renderer.draw(self.image)
+
+
+if __name__ == "__main__":
+    game = MyGame()
+    game.run()
+```
+
 ## Author
 
 Juan J. Martinez <jjm@usebox.net>
