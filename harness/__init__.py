@@ -126,7 +126,7 @@ class Game(object):
         while self._update_dt > self.UFPS_DT:
             for update in self.update_handlers:
                 update(self.UFPS_DT)
-                self._update_dt -= self.UFPS_DT
+            self._update_dt -= self.UFPS_DT
 
     def _draw(self):
 
