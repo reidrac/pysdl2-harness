@@ -59,7 +59,7 @@ components:
 ### 1. The game loop
 
 Harness implements a game loop with a fixed frame rate determined by the vsync
-of the screen (usually 60 FPS), with support for fixed upsates for the game
+of the screen (usually 60 FPS), with support for fixed updates for the game
 logic (by default at 80 times per second).
 
 The usual workflow is:
@@ -114,7 +114,7 @@ Several draw and update functions can be defined and they will be run in the
 same order they were defined.
 
 The game instance can be accessed from the update function to test for key
-states, quite the game, etc.
+states, quit the game, etc.
 
 The method `quit()` can be used to exit the game loop.
 
