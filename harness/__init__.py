@@ -78,10 +78,14 @@ class Game(object):
             main = globals().__main__
         else:
             import __main__ as main
-        main_file = getattr(main, "__file__", ".")
+        main_dir = os.path.dirname(os.path.realpath(getattr(main, "__file__", ".")))
+
+        # heuristic intended to work with packaged scripts (eg, py2exe)
+        while not os.path.isdir(main_dir):
+            main_dir = os.path.dirname(main_dir)
 
         self.resource_path = [
-                os.path.join(os.path.dirname(os.path.realpath(main_file)), "data"),
+                os.path.join(main_dir, "data"),
                 ]
 
         self.resources = {}
