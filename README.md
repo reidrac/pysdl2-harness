@@ -134,6 +134,43 @@ def update(dt):
 game.loop()
 ```
 
+A draw or update function can be removed from the game loop with `remove_handler()`
+method, passing the function to be removed as parameter.
+
+Example:
+```python
+
+game = Harness()
+debug = False
+
+def update_debug(dt):
+	print(dt)
+
+@game.update
+def update(dt):
+    global debug
+
+    if game.keys[game.KEY_D]:
+        print("D was pressed!")
+        if debug:
+            # remove the update_debug update function
+            game.remove_handler(update_debug)
+        else:
+            # add a new update function
+            game.update(update_debug)
+        debug = not debug
+        # remove the key press once processed
+        game.keys[game.KEY_D] = False
+
+    if game.keys[game.KEY_ESCAPE]:
+        game.quit()
+        # in case we don't want to complete the update
+        return
+
+game.loop()
+
+```
+
 ### 2. Loading resources
 
 Resources can loaded with `load_resource()` method. This method allows loading

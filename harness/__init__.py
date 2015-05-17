@@ -175,6 +175,13 @@ class Harness(object):
         sdlmixer.Mix_Quit()
         sdl2.SDL_Quit()
 
+    def remove_handler(self, fn):
+        """Remove a draw or update handler"""
+        if fn in self.draw_handlers:
+            self.draw_handlers.remove(fn)
+        if fn in self.update_handlers:
+            self.update_handlers.remove(fn)
+
     def draw(self, fn):
         self.draw_handlers.append(fn)
         return fn
