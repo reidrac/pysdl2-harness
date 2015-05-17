@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-harness.Game,
+Harness for pysdl2,
 some simple classes to make working with pysdl2 easier.
 
 Copyright (C) 2015 by Juan J. Martinez <jjm@usebox.net>
@@ -42,9 +42,9 @@ except ImportError as ex:
         sys.exit("SDL2_Mixer library not found: %s" % ex)
 
 
-class Game(object):
+class Harness(object):
     """
-    Game object
+    Harness object
 
     Parameters:
 
@@ -63,7 +63,7 @@ class Game(object):
 
     def __init__(self, title=None, width=320, height=200, zoom=1):
 
-        self.title = title.encode() if title else b"SDL2 Game"
+        self.title = title.encode() if title else b"SDL2 Harness"
         self.width = width
         self.height = height
         self.zoom = zoom
@@ -302,7 +302,7 @@ class Renderer(object):
 
         Parameters:
 
-            texture: texture created with Game.load_resource or Texture.get_texture.
+            texture: texture created with Harness.load_resource or Texture.get_texture.
             x: horizontal location to draw the whole texture.
             y: vertical location to draw the whole texture.
             src_rect: tuple with the rect defining the section of the texture to draw.

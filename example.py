@@ -7,9 +7,9 @@ Tested with Python 3.4, may or may not work with Python 2!
 
 from random import randint
 
-from harness import Game
+from harness import Harness
 
-game = Game(title="pysdl2 HARNESS demo", width=240, height=240, zoom=3)
+game = Harness(title="pysdl2 HARNESS demo", width=240, height=240, zoom=3)
 
 background = game.load_resource("background.png")
 title = game.load_resource("title.png")
