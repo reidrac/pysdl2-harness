@@ -164,8 +164,6 @@ def update(dt):
 
     if game.keys[game.KEY_ESCAPE]:
         game.quit()
-        # in case we don't want to complete the update
-        return
 
 game.loop()
 
