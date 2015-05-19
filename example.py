@@ -121,7 +121,7 @@ class PlayScene(object):
         self.score = 0
 
         # subtextures for the board tiles
-        self.tiles = [tiles.get_texture(*tuple([i * 24, 0, 24, 24])) for i in range(8)]
+        self.tiles = [tiles.get_texture(*tuple([i * 24, 0, 24, 24])) for i in range(10)]
 
         # stage 1
         self.stage = 0
@@ -138,7 +138,7 @@ class PlayScene(object):
         self.prev_time = 0
 
         # generate a random board
-        self.board = [randint(0, 7) for i in range(self.BW * self.BH)]
+        self.board = [randint(0, 9) for i in range(self.BW * self.BH)]
 
     def draw(self, renderer):
         renderer.draw(background)
