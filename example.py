@@ -91,7 +91,7 @@ class MenuScene(object):
             # loop the intro music
             self.intro_channel = game.play(dance, loops=-1)
 
-        # the "start" will blnk
+        # the "start" will blink
         self.counter += dt * 10
         if self.counter > 12:
             self.counter -= 12
