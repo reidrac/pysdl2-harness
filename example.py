@@ -5,7 +5,7 @@ Harness demo, a game example.
 Tested with Python 3.4, may or may not work with Python 2!
 """
 
-from random import randint
+from random import randint, shuffle
 
 from harness import Harness
 
@@ -114,14 +114,17 @@ class MenuScene(object):
 
 class PlayScene(object):
 
-    BW = 8
-    BH = 8
+    BW = 7
+    BH = 7
+
+    MAX_TILES = 10
+    TILES = 8
 
     def __init__(self):
         self.score = 0
 
         # subtextures for the board tiles
-        self.tiles = [tiles.get_texture(*tuple([i * 24, 0, 24, 24])) for i in range(10)]
+        self.tiles = [tiles.get_texture(*tuple([i * 24, 0, 24, 24])) for i in range(self.MAX_TILES)]
 
         # stage 1
         self.stage = 0
@@ -138,7 +141,9 @@ class PlayScene(object):
         self.prev_time = 0
 
         # generate a random board
-        self.board = [randint(0, 9) for i in range(self.BW * self.BH)]
+        tileset = [range(self.MAX_TILES)]
+        shuffle(tileset)
+        self.board = [randint(0, self.TILES) for i in range(self.BW * self.BH)]
 
     def draw(self, renderer):
         renderer.draw(background)
