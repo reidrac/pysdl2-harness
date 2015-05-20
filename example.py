@@ -11,6 +11,12 @@ from harness import Harness
 
 game = Harness(title="pysdl2 HARNESS demo", width=240, height=240, zoom=3)
 
+if game.has_controllers:
+    # use first game controller; harness will manage this internally
+    # but it's useful to keep a reference (eg, to set the keyboard mapping,
+    # get the controller name, etc)
+    controller = game.controllers[0]
+
 background = game.load_resource("background.png")
 title = game.load_resource("title.png")
 font = game.load_bitmap_font("font.png", width=6, height=10)
@@ -237,6 +243,7 @@ class PlayScene(object):
             # play it once
             game.play(gameover)
 
+        # controls
         if game.keys[game.KEY_ESCAPE]:
             # avoid leaving the game just after
             # leaving this scene!

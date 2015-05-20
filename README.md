@@ -209,10 +209,10 @@ Fonts can be freed with `free_resources()`.
 
 ### 3. Controls
 
-The status of the keys is exposed in `keys` dictionary and it
+The state of the keys is exposed in `keys` dictionary and it
 gets updated in each game loop iteration.
 
-In `Harness.KEYS_*` there are constants to test in the "keys" dictionary. If a key
+In `Harness.KEY_*` there are constants to test in the "keys" dictionary. If a key
 is being pressed, the value in the dictionary will be `True`.
 
 Example:
@@ -228,6 +228,67 @@ def update(dt):
 
 game.loop()
 ```
+
+#### 3.1. Game controllers
+
+Game controllers can be mapped into key states so the game can access to the
+controller like the player was using the keyboard.
+
+The default mapping is:
+
+ - DPad up: up arrow key
+ - DPad down: down arrow key
+ - DPad left: left arrow key
+ - DPad right: right arrow key
+ - Button A: key c
+ - Button B: key v
+ - Start button: key s
+ - Back button: escape key
+
+Harness will manage the controller automatically in the game loop updating the
+`keys` dictionary as needed. 
+
+`has_controllers` property can be checked to see if any game controller was
+detected. Harness includes a game controller database with definitions for most
+common devices, and SDL2 functions can be used to add more. If there's no information
+about a given controller, it will be silently ignored.
+
+In order to use a controller, the `controllers` property can be accessed to
+activate any detected controller.
+
+Example:
+```python
+
+game = Harness()
+
+# enumerate all detected controllers
+for controller in game.controllers:
+    print(controller.name)
+
+```
+
+Once the controller has been activated, it can be deactivated using `close()`
+controller method.
+
+The key mapping can be changed using the `set_mapping()` method on the controller.
+
+Example:
+```python
+
+game = Harness()
+
+# first controller
+controller = game.controllers[0]
+
+# remap button a to key a
+controller.set_mapping(a="KEY_A")
+```
+
+The valid parameters are: up, down, left, right, a, b, start and back. Use a
+string defining the key (see `Harness.KEY_*`).
+
+The use of a controller won't disable the keyboard. If that is required, the
+game controllers can be accessed using SDL2 functions directly.
 
 ### 4. Audio
 

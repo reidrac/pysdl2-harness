@@ -41,6 +41,8 @@ except ImportError as ex:
     if not hasattr(sys, "_gen_docs"):
         sys.exit("SDL2_Mixer library not found: %s" % ex)
 
+# loads game controller definitions
+from .GameControllerDB import init_game_controller
 
 class Harness(object):
     """
@@ -72,6 +74,7 @@ class Harness(object):
         self._update_dt = 0
         self.update_handlers = []
         self.draw_handlers = []
+        self._controllers = {}
 
         # try to find the script directory
         if "__main__" in globals():
@@ -94,7 +97,8 @@ class Harness(object):
             if attr.startswith("SDL_SCANCODE_"):
                 setattr(self, attr.replace("SDL_SCANCODE_", "KEY_"), getattr(sdl2, attr))
 
-        sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO|sdl2.SDL_INIT_AUDIO|sdl2.SDL_INIT_TIMER)
+        sdl2.SDL_Init(sdl2.SDL_INIT_VIDEO|sdl2.SDL_INIT_AUDIO|sdl2.SDL_INIT_TIMER|sdl2.SDL_INIT_JOYSTICK)
+        init_game_controller()
         sdlmixer.Mix_Init(sdlmixer.MIX_INIT_OGG)
         sdlmixer.Mix_OpenAudio(44100, sdlmixer.MIX_DEFAULT_FORMAT, self.AUDIO_CHANNELS, 1024)
 
@@ -156,6 +160,8 @@ class Harness(object):
                     break
 
             self.keys = sdl2.SDL_GetKeyboardState(None)
+            for controller in self._controllers.values():
+                controller.poll()
 
             new = sdl2.SDL_GetPerformanceCounter()
             self._update((new - current) / freq)
@@ -167,6 +173,10 @@ class Harness(object):
 
         for resource in self.resources.copy().keys():
             self.free_resource(resource)
+
+        for controller in list(self._controllers.values()):
+            if controller.handler:
+                controller.close()
 
         sdl2.SDL_DestroyRenderer(self.renderer)
         sdl2.SDL_HideWindow(self.window)
@@ -287,6 +297,20 @@ class Harness(object):
                           )
         return font
 
+    @property
+    def has_controllers(self):
+        """True if there are game controllers available"""
+        return sdl2.SDL_NumJoysticks() > 0
+
+    @property
+    def controllers(self):
+        """Get a tuple of all detected game controllers"""
+        for joy in range(sdl2.SDL_NumJoysticks()):
+            if sdl2.SDL_IsGameController(joy):
+                controller = Controller(joy, self)
+                self._controllers[controller.name] = controller
+        return tuple(self._controllers.values())
+
 class Renderer(object):
     """Wrapper for the renderer to be used by the draw functions"""
     def __init__(self, renderer):
@@ -399,4 +423,69 @@ class BitmapFont(object):
         self.width = width
         self.height = height
         self.font_map = font_map
+
+class Controller(object):
+    """Game controller"""
+
+    DEF_KEY_MAPPING = dict(up="KEY_UP",
+                           down="KEY_DOWN",
+                           left="KEY_LEFT",
+                           right="KEY_RIGHT",
+                           a="KEY_C",
+                           b="KEY_V",
+                           start="KEY_S",
+                           back="KEY_ESCAPE",
+                           )
+
+    MAPPING = dict(up=sdl2.SDL_CONTROLLER_BUTTON_DPAD_UP,
+                   down=sdl2.SDL_CONTROLLER_BUTTON_DPAD_DOWN,
+                   left=sdl2.SDL_CONTROLLER_BUTTON_DPAD_LEFT,
+                   right=sdl2.SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
+                   a=sdl2.SDL_CONTROLLER_BUTTON_A,
+                   b=sdl2.SDL_CONTROLLER_BUTTON_B,
+                   start=sdl2.SDL_CONTROLLER_BUTTON_START,
+                   back=sdl2.SDL_CONTROLLER_BUTTON_BACK,
+                   )
+
+    def __init__(self, joy_number, harness):
+        self.key_mapping = self.DEF_KEY_MAPPING
+        self.harness = harness
+        self.joy_number = joy_number
+        self.previous = dict((key, False) for key in self.MAPPING.keys())
+
+        # unlikely
+        if not sdl2.SDL_IsGameController(joy_number):
+            raise ValueError("%r is not a support game controller" % joy_number)
+
+        self.handler = sdl2.SDL_GameControllerOpen(self.joy_number)
+        if not self.handler:
+            raise ValueError("%r is not a support game controller" % joy_number)
+
+        self.name = sdl2.SDL_GameControllerName(self.handler)
+
+    def __repr__(self):
+        return u"<Controller: %r>" % self.name
+
+    def close(self):
+        sdl2.SDL_GameControllerClose(self.handler)
+        self.handler = None
+
+        if self.name in self.harness._controllers:
+            del self.harness._controllers[self.name]
+
+    def set_mapping(self, **kwargs):
+        for key, value in kwargs.items():
+            if key not in self.MAPPING.keys():
+                raise ValueError("%r is not a supported game controler to keyboard mapping" % key)
+            self.key_mapping[key] = value
+
+    def poll(self):
+        if not self.handler:
+            return
+
+        for key, value in self.MAPPING.items():
+            state = sdl2.SDL_GameControllerGetButton(self.handler, value) == 1
+            if self.previous[key] != state:
+                self.harness.keys[getattr(self.harness, self.key_mapping[key])] = state
+            self.previous[key] = state
 
