@@ -229,7 +229,7 @@ def update(dt):
 game.loop()
 ```
 
-#### 3.1. Game controllers
+#### 3.1 Game controllers
 
 Game controllers can be mapped into key states so the game can access to the
 controller like the player was using the keyboard.
