@@ -149,7 +149,7 @@ class PlayScene(object):
         # generate a random board
         tileset = [range(self.MAX_TILES)]
         shuffle(tileset)
-        self.board = [randint(0, self.TILES) for i in range(self.BW * self.BH)]
+        self.board = [randint(0, self.TILES - 1) for i in range(self.BW * self.BH)]
 
     def draw(self, renderer):
         renderer.draw(background)
