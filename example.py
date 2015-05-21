@@ -115,8 +115,44 @@ class MenuScene(object):
             # press "s" to play
             game.stop_playback(self.intro_channel)
             self.intro_channel = None
-            scenes.append(PlayScene())
+            scenes.append(ReadyScene())
             return
+
+class ReadyScene(object):
+
+    def __init__(self):
+        self.delay = 16
+
+    def draw(self, renderer):
+        renderer.draw(background)
+        renderer.draw_text(font, 120, 100, "READY?", align="center")
+
+    def update(self, dt):
+        if self.delay > 0:
+            self.delay -= dt * 10
+            if self.delay <= 0:
+                scenes.pop()
+                scenes.append(PlayScene())
+
+class GameOverScene(object):
+
+    def __init__(self):
+        self.delay = 80
+
+        # play it once
+        game.play(gameover)
+
+    def draw(self, renderer):
+        renderer.draw(background)
+        renderer.draw_text(font, 120, 100, "GAME OVER", align="center")
+
+    def update(self, dt):
+        if self.delay > 0:
+            self.delay -= dt * 10
+            if self.delay <= 0:
+
+                # back to menu
+                scenes.pop()
 
 class PlayScene(object):
 
@@ -127,20 +163,17 @@ class PlayScene(object):
     TILES = 8
 
     def __init__(self):
+        self.stage = 1
         self.score = 0
 
         # subtextures for the board tiles
         self.tiles = [tiles.get_texture(*tuple([i * 24, 0, 24, 24])) for i in range(self.MAX_TILES)]
 
-        # stage 1
-        self.stage = 0
+        self.music_channel = game.play(dance, loops=-1)
         self.next_stage()
 
     def next_stage(self):
-        self.stage += 1
-        self.ready_delay = 16
-        self.time = 99
-        self.music_channel = None
+        self.time = 12
         self.hurry_up = None
         self.time_tint = None
         self.game_over = None
@@ -164,16 +197,6 @@ class PlayScene(object):
         else:
             renderer.draw_text(font, 120, 9, "TIME: %02i" % int(self.time), align="center", tint=self.time_tint)
 
-        # show READY? before starting
-        if self.ready_delay > 0:
-            renderer.draw_text(font, 120, 100, "READY?", align="center")
-            return
-
-        # game over
-        if self.game_over:
-            renderer.draw_text(font, 120, 100, "GAME OVER", align="center")
-            return
-
         # draw the board
         for y in range(self.BH):
             for x in range(self.BW):
@@ -183,26 +206,6 @@ class PlayScene(object):
                               )
 
     def update(self, dt):
-
-        # GAME OVER
-        if self.game_over:
-            self.game_over -= dt * 10
-
-            if self.game_over <= 0:
-                global hiscore
-                if self.score > hiscore:
-                    hiscore = self.score
-
-                # back to menu
-                scenes.pop()
-            return
-
-        # READY? delay
-        if self.ready_delay > 0:
-            self.ready_delay -= dt * 10
-            if self.ready_delay <= 0 and self.music_channel is None:
-                self.music_channel = game.play(dance, loops=-1)
-            return
 
         # HURRY UP! delay
         if self.hurry_up:
@@ -234,14 +237,18 @@ class PlayScene(object):
 
         # set GAME OVER
         if int(self.time) == 0:
-            self.game_over = 80
 
             # stop music
             if self.music_channel is not None:
                 game.stop_playback(self.music_channel)
 
-            # play it once
-            game.play(gameover)
+            global hiscore
+            if self.score > hiscore:
+                hiscore = self.score
+
+            scenes.pop()
+            scenes.append(GameOverScene())
+            return
 
         # controls
         if game.keys[game.KEY_ESCAPE]:
