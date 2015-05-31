@@ -485,14 +485,14 @@ class Controller(object):
                            back="KEY_ESCAPE",
                            )
 
-    MAPPING = dict(up=sdl2.SDL_CONTROLLER_BUTTON_DPAD_UP,
-                   down=sdl2.SDL_CONTROLLER_BUTTON_DPAD_DOWN,
-                   left=sdl2.SDL_CONTROLLER_BUTTON_DPAD_LEFT,
-                   right=sdl2.SDL_CONTROLLER_BUTTON_DPAD_RIGHT,
-                   a=sdl2.SDL_CONTROLLER_BUTTON_A,
-                   b=sdl2.SDL_CONTROLLER_BUTTON_B,
-                   start=sdl2.SDL_CONTROLLER_BUTTON_START,
-                   back=sdl2.SDL_CONTROLLER_BUTTON_BACK,
+    MAPPING = dict(up="SDL_CONTROLLER_BUTTON_DPAD_UP",
+                   down="SDL_CONTROLLER_BUTTON_DPAD_DOWN",
+                   left="SDL_CONTROLLER_BUTTON_DPAD_LEFT",
+                   right="SDL_CONTROLLER_BUTTON_DPAD_RIGHT",
+                   a="SDL_CONTROLLER_BUTTON_A",
+                   b="SDL_CONTROLLER_BUTTON_B",
+                   start="SDL_CONTROLLER_BUTTON_START",
+                   back="SDL_CONTROLLER_BUTTON_BACK",
                    )
 
     def __init__(self, joy_number, harness):
@@ -537,14 +537,14 @@ class Controller(object):
         for key, value in kwargs.items():
             if key not in self.MAPPING.keys():
                 raise ValueError("%r is not a supported game controler to keyboard mapping" % key)
-            self.key_mapping[key] = value
+            self.key_mapping[getattr(sdl2, key)] = value
 
     def poll(self):
         if not self.handler:
             return
 
         for key, value in self.MAPPING.items():
-            state = sdl2.SDL_GameControllerGetButton(self.handler, value) == 1
+            state = sdl2.SDL_GameControllerGetButton(self.handler, getattr(sdl2, value)) == 1
             if self.previous[key] != state:
                 self.harness.keys[getattr(self.harness, self.key_mapping[key])] = state
             self.previous[key] = state
