@@ -19,7 +19,13 @@ freely, subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 
 """
-import sdl2
+import sys
+
+try:
+    import sdl2
+except ImportError as ex:
+    if not hasattr(sys, "_gen_docs"):
+        sys.exit("SDL2 library not found: %s" % ex)
 
 mappings ="""\
 # Windows - DINPUT
