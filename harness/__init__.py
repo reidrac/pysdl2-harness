@@ -27,7 +27,7 @@ import sys
 import os
 import ctypes
 
-version = "0.1-alpha"
+version = "0.1"
 
 try:
     import sdl2
