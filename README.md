@@ -345,6 +345,8 @@ if __name__ == "__main__":
     game.run()
 ```
 
+See `example-oop.py`.
+
 ## Author
 
 Juan J. Martinez <jjm@usebox.net>
