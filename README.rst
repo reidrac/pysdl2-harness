@@ -9,10 +9,10 @@ This is a work in progress so use it at your own risk!
 Required
 --------
 
- - Python 3
- - pysdl2
- - SDL2 and SDL2_Mixer installed in your system
- - Optionally SDL2_Image (otherwise only uncompressed BMP images are supported)
+- Python 3
+- pysdl2
+- SDL2 and SDL2_Mixer installed in your system
+- Optionally SDL2_Image (otherwise only uncompressed BMP images are supported)
 
 
 Installation
@@ -66,10 +66,10 @@ Components
 Harness tries to provide a clean and simple interface to the following
 components:
 
- 1. The game loop
- 2. Resource management
- 3. Controls
- 4. Audio
+1. The game loop
+2. Resource management
+3. Controls
+4. Audio
 
 1. The game loop
 ^^^^^^^^^^^^^^^^
@@ -80,10 +80,10 @@ logic (by default at 80 times per second).
 
 The usual workflow is:
 
- 1. Create a Harness object (we'll call it *game* in the examples).
- 2. Load resources.
- 3. Declare the draw and update functions.
- 4. Run the ``loop()`` method in your Harness instance.
+1. Create a Harness object (we'll call it *game* in the examples).
+2. Load resources.
+3. Declare the draw and update functions.
+4. Run the ``loop()`` method in your Harness instance.
 
 The game loop should be called once and it will run until the game is quitted
 (eg, using ``quit()`` method).
@@ -253,14 +253,14 @@ controller like the player was using the keyboard.
 
 The default mapping is:
 
- - DPad up: up arrow key
- - DPad down: down arrow key
- - DPad left: left arrow key
- - DPad right: right arrow key
- - Button A: key c
- - Button B: key v
- - Start button: key s
- - Back button: escape key
+- DPad up: up arrow key
+- DPad down: down arrow key
+- DPad left: left arrow key
+- DPad right: right arrow key
+- Button A: key c
+- Button B: key v
+- Start button: key s
+- Back button: escape key
 
 Harness will manage the controller automatically in the game loop updating the
 ``keys`` dictionary as needed.
@@ -376,5 +376,5 @@ This is free software under MIT license terms.
 
 Contributors:
 
- - Your name here?
+- Your name here?
 
