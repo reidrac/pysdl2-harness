@@ -6,16 +6,9 @@ import sys
 sys._gen_docs= True
 from harness import version
 
-def readme():
-    try:
-        return open("README.md").read()
-    except:
-        return ""
-
 setup(name="pysdl2-harness",
       version=version,
-      description="Some simple classes to make working with pysdl2 easier.",
-      long_description=readme(),
+      description="Some simple classes to make working with pysdl2 easier",
       author="Juan J. Martinez",
       author_email="jjm@usebox.net",
       url="https://github.com/reidrac/pysdl2-harness",
