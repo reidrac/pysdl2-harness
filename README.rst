@@ -18,7 +18,7 @@ Required
 Installation
 ------------
 
-The easiest way to install Harness is using `pip`:
+The easiest way to install **Harness** is using `pip`:
 
 .. code-block:: bash
 
