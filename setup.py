@@ -33,6 +33,6 @@ setup(name="pysdl2-harness",
         'Topic :: Software Development :: Libraries :: Python Modules',
         "License :: OSI Approved :: MIT License",
         ],
-      keywords="pysdl3 game",
+      keywords="pysdl2 game sdl",
       )
 
