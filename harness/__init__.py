@@ -117,7 +117,11 @@ class Harness(object):
             sdl2.SDL_RenderSetScale(self.renderer, self.zoom, self.zoom)
 
     def set_icon(self, filename):
-        """Sets the window icon from an image"""
+        """
+        Sets the window icon from an image
+
+        NOT a texture (don't use load_resource method).
+        """
         from sdl2 import sdlimage
 
         found_path = self._find_path(filename)
@@ -186,7 +190,13 @@ class Harness(object):
         sdl2.SDL_Quit()
 
     def remove_handler(self, fn):
-        """Remove a draw or update handler"""
+        """
+        Remove a draw or update handler
+
+        Parameters:
+
+            fn: handler to remove.
+        """
         if fn in self.draw_handlers:
             self.draw_handlers.remove(fn)
         if fn in self.update_handlers:
@@ -201,7 +211,15 @@ class Harness(object):
         return fn
 
     def play(self, sample, loops=0):
-        """Plays a sample loaded with load_resource"""
+        """
+        Plays a sample loaded with load_resource
+
+        Parameters:
+
+            sample: sample to play.
+            loops: number of times to play the sample (-1 for infinite loop).
+
+        """
         return sdlmixer.Mix_PlayChannel(-1, sample, loops)
 
     def stop_playback(self, channel=-1):
@@ -233,7 +251,22 @@ class Harness(object):
         return found_path
 
     def load_resource(self, filename):
-        """Loads resources"""
+        """
+        Loads resources
+
+        Parameters:
+
+            filename: file name of the resource to load.
+
+        The resource is identified based on its name:
+
+            .bmp: image (using SDL2).
+            .png, .gif, .jpg: image (using SDL2_Image)
+            .wav, .ogg: audio sample
+
+        If the resource type is not identified, an open file handle
+        is returned (is to the callee to close the file).
+        """
 
         found_path = self._find_path(filename)
 
@@ -304,7 +337,12 @@ class Harness(object):
 
     @property
     def controllers(self):
-        """Get a tuple of all detected game controllers"""
+        """
+        Get a tuple of all detected game controllers
+
+        By getting a controller from this list, the controller gets automatically
+        enabled and ready to use.
+        """
         for joy in range(sdl2.SDL_NumJoysticks()):
             if sdl2.SDL_IsGameController(joy):
                 controller = Controller(joy, self)
@@ -412,6 +450,16 @@ class Texture(object):
         self.sdl_rect = sdl2.SDL_Rect(*rect)
 
     def get_texture(self, x, y, width, height):
+        """
+        Returns a reference to a subtexture
+
+        Parameters:
+
+            x: horizontal position on the parent texture.
+            y: vertical position on the parent texture.
+            width: width of the subtexture.
+            height: height of the subtexture.
+        """
         return Texture(self.texture, (x, y, width, height))
 
 class BitmapFont(object):
@@ -467,6 +515,7 @@ class Controller(object):
         return u"<Controller: %r>" % self.name
 
     def close(self):
+        """Deactivate a game controller"""
         sdl2.SDL_GameControllerClose(self.handler)
         self.handler = None
 
@@ -474,6 +523,17 @@ class Controller(object):
             del self.harness._controllers[self.name]
 
     def set_mapping(self, **kwargs):
+        """
+        Maps a controller action to a key
+
+        Takes named parameters in the form:
+
+            action="KEY"
+
+        Example:
+
+            start="KEY_S"
+        """
         for key, value in kwargs.items():
             if key not in self.MAPPING.keys():
                 raise ValueError("%r is not a supported game controler to keyboard mapping" % key)
