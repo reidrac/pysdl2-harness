@@ -9,7 +9,7 @@ This is a work in progress so use it at your own risk!
 Required
 --------
 
-- Python 3
+- Python 3 (Python 2.7.x may work, but is not a priority!)
 - pysdl2
 - SDL2 and SDL2_Mixer installed in your system
 - Optionally SDL2_Image (otherwise only uncompressed BMP images are supported)
