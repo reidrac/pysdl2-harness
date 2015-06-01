@@ -18,7 +18,7 @@ Required
 Installation
 ------------
 
-The easiest way to install **Harness** is using `pip`:
+The easiest way to install Harness is using `pip`:
 
 .. code-block:: bash
 
@@ -295,11 +295,12 @@ Example:
 
     game = Harness()
 
-    # first controller
-    controller = game.controllers[0]
+    if game.has_controllers:
+        # first controller
+        controller = game.controllers[0]
 
-    # remap button a to key a
-    controller.set_mapping(a="KEY_A")
+        # remap button a to key a
+        controller.set_mapping(a="KEY_A")
 
 The valid parameters are: up, down, left, right, a, b, start and back. Use a
 string defining the key (see ``Harness.KEY_*``).
